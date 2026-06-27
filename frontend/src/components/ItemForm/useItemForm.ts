@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Item } from '../../types';
 
 export const CATEGORIES = [
@@ -30,6 +30,14 @@ export function useItemForm(initial: Partial<Item> = {}, onSubmit: (fd: FormData
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(initial.image_url ?? null);
+  const objectUrlRef = useRef<string | null>(null);
+
+  // Revoke previous object URL when a new one is created or component unmounts
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    };
+  }, [preview]);
 
   const set = useCallback(
     (key: keyof FormState) =>
@@ -41,8 +49,11 @@ export function useItemForm(initial: Partial<Item> = {}, onSubmit: (fd: FormData
   const handleImage = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+    const url = URL.createObjectURL(file);
+    objectUrlRef.current = url;
     setImageFile(file);
-    setPreview(URL.createObjectURL(file));
+    setPreview(url);
   }, []);
 
   const handleSubmit = useCallback((e: React.FormEvent) => {
