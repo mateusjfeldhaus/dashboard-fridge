@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'styled-components';
-import { deleteItem, decrementQuantity, updateItemImage } from '../../api/items';
+import { decrementQuantity, updateItemImage } from '../../api/items';
 import type { Item } from '../../types';
 
 export const EMOJI: Record<string, string> = {
@@ -74,12 +74,6 @@ export function useItemCard(item: Item, { onDeleted, onUpdated }: UseItemCardOpt
     }
   }, [item.id, amount, onDeleted, onUpdated]);
 
-  const handleFullDelete = useCallback(async () => {
-    if (!confirm(`Remover "${item.name}" completamente?`)) return;
-    await deleteItem(item.id);
-    onDeleted(item.id);
-  }, [item.id, item.name, onDeleted]);
-
   const cancelRemove = useCallback(() => {
     setRemoving(false);
     setAmount(1);
@@ -92,7 +86,7 @@ export function useItemCard(item: Item, { onDeleted, onUpdated }: UseItemCardOpt
     loading, imgUploading,
     getExpiryStatus,
     handleImageClick, handleImageChange,
-    handleConfirmRemove, handleFullDelete,
+    handleConfirmRemove,
     navigate,
   };
 }
