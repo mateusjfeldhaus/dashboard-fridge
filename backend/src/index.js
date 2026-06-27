@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import cron from 'node-cron';
 import authRouter from './routes/auth.js';
 import itemsRouter from './routes/items.js';
@@ -10,6 +11,7 @@ import { notifyExpiringItems } from './jobs/notifyExpiring.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL || false }));
 app.use(express.json());
 
