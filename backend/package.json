@@ -7,7 +7,8 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "setup-db": "node scripts/setup-db.js",
-    "migrate:frutos-do-mar": "node scripts/migrate-add-frutos-do-mar.js"
+    "migrate:frutos-do-mar": "node scripts/migrate-add-frutos-do-mar.js",
+    "test:email": "node scripts/test-email.js"
   },
   "keywords": [],
   "author": "",
