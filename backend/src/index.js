@@ -23,4 +23,15 @@ cron.schedule('0 11 * * *', () => {
   notifyExpiringItems().catch(console.error);
 }, { timezone: 'America/Sao_Paulo' });
 
+// Multer error handler (file too large, wrong type)
+app.use((err, req, res, next) => {
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(400).json({ error: 'Arquivo muito grande. Máximo: 5MB.' });
+  }
+  if (err.message === 'Apenas imagens são permitidas') {
+    return res.status(400).json({ error: err.message });
+  }
+  next(err);
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
