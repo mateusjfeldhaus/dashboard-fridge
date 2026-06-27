@@ -35,3 +35,8 @@ export const updateItem = (id, formData) =>
   api.put(`/items/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 export const deleteItem = (id) => api.delete(`/items/${id}`);
 export const decrementQuantity = (id, amount) => api.patch(`/items/${id}/quantity`, { amount });
+export const updateItemImage = (id, file) => {
+  const fd = new FormData();
+  fd.append('image', file);
+  return api.patch(`/items/${id}/image`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+};

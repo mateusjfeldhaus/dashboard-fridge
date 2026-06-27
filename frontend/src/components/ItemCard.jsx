@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import { deleteItem, decrementQuantity } from '../api/items';
+import { deleteItem, decrementQuantity, updateItemImage } from '../api/items';
 
 const Card = styled.div`
   background: ${({ theme }) => theme.colors.surface};
@@ -27,11 +27,38 @@ const ImageWrapper = styled.div`
   justify-content: center;
   font-size: 3rem;
   overflow: hidden;
+  position: relative;
+  cursor: pointer;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  &:hover .cam-overlay {
+    opacity: 1;
+  }
+`;
+
+const CamOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: white;
+  font-size: 1.6rem;
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
   }
 `;
 
@@ -169,6 +196,25 @@ export default function ItemCard({ item, onDeleted, onUpdated }) {
   const [removing, setRemoving] = useState(false);
   const [amount, setAmount] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [imgUploading, setImgUploading] = useState(false);
+  const fileRef = useRef();
+
+  const handleImageClick = () => fileRef.current.click();
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImgUploading(true);
+    try {
+      const { data } = await updateItemImage(item.id, file);
+      onUpdated(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setImgUploading(false);
+      e.target.value = '';
+    }
+  };
 
   const maxQty = parseFloat(item.quantity);
 
@@ -207,10 +253,20 @@ export default function ItemCard({ item, onDeleted, onUpdated }) {
 
   return (
     <Card>
-      <ImageWrapper>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleImageChange}
+      />
+      <ImageWrapper onClick={handleImageClick}>
         {item.image_url
           ? <img src={item.image_url} alt={item.name} />
           : <span>{EMOJI[cat] || '📦'}</span>}
+        <CamOverlay className="cam-overlay">
+          {imgUploading ? <span>Enviando...</span> : <><>📷</><span>Trocar foto</span></>}
+        </CamOverlay>
       </ImageWrapper>
       <Body>
         <Name>{item.name}</Name>

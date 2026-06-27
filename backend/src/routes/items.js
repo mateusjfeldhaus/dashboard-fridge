@@ -109,6 +109,33 @@ router.put('/:id', upload.single('image'), async (req, res) => {
   }
 });
 
+// PATCH /api/items/:id/image — replace only the image
+router.patch('/:id/image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No image provided' });
+
+    const ext = req.file.originalname.split('.').pop();
+    const filename = `${uuidv4()}.${ext}`;
+    const { error } = await supabase.storage
+      .from(BUCKET)
+      .upload(filename, req.file.buffer, { contentType: req.file.mimetype });
+    if (error) throw error;
+
+    const { data } = supabase.storage.from(BUCKET).getPublicUrl(filename);
+    const image_url = data.publicUrl;
+
+    const { rows } = await pool.query(
+      'UPDATE items SET image_url=$1, updated_at=NOW() WHERE id=$2 RETURNING *',
+      [image_url, req.params.id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Item not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update image' });
+  }
+});
+
 // PATCH /api/items/:id/quantity — decrement quantity, delete if reaches 0
 router.patch('/:id/quantity', async (req, res) => {
   try {
