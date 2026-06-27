@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS items (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name        TEXT NOT NULL,
-  category    TEXT NOT NULL CHECK (category IN ('carne', 'frango', 'porco', 'peixe', 'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro')),
+  category    TEXT NOT NULL CHECK (category IN ('carne', 'frango', 'porco', 'peixe', 'frutos do mar', 'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro')),
   quantity    NUMERIC(10, 2) NOT NULL DEFAULT 1,
   unit        TEXT NOT NULL DEFAULT 'un',
   notes       TEXT,

@@ -88,7 +88,7 @@ const SubmitBtn = styled.button`
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 `;
 
-const CATEGORIES = ['carne', 'frango', 'porco', 'peixe', 'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro'];
+const CATEGORIES = ['carne', 'frango', 'porco', 'peixe', 'frutos do mar', 'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro'];
 const UNITS = ['un', 'kg', 'g', 'l', 'ml', 'pacote', 'caixa'];
 
 export default function ItemForm({ initial = {}, onSubmit, loading }) {

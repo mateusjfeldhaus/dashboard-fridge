@@ -63,7 +63,7 @@ const Empty = styled.div`
   font-size: 1rem;
 `;
 
-const CATEGORIES = ['todos', 'carne', 'frango', 'porco', 'peixe', 'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro'];
+const CATEGORIES = ['todos', 'carne', 'frango', 'porco', 'peixe', 'frutos do mar', 'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro'];
 
 export default function Dashboard() {
   const [items, setItems] = useState([]);

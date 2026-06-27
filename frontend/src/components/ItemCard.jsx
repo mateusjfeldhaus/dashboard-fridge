@@ -188,7 +188,7 @@ const ConfirmBtn = styled.button`
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 `;
 
-const EMOJI = { carne: '🥩', frango: '🍗', porco: '🥓', peixe: '🐟', congelados: '🧊', 'pães': '🍞', sopa: '🍲', massas: '🍝', proteina: '💪', outro: '📦' };
+const EMOJI = { carne: '🥩', frango: '🍗', porco: '🥓', peixe: '🐟', 'frutos do mar': '🦐', congelados: '🧊', 'pães': '🍞', sopa: '🍲', massas: '🍝', proteina: '💪', outro: '📦' };
 
 export default function ItemCard({ item, onDeleted, onUpdated }) {
   const navigate = useNavigate();
