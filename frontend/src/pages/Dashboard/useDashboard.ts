@@ -26,7 +26,7 @@ export function useDashboard() {
     });
   }, []);
 
-  // Filter client-side — instant, no extra API calls
+  // Filter + sort client-side — instant, no extra API calls
   const items = useMemo(() => {
     let result = allItems;
     if (activeCategory !== 'todos') {
@@ -36,7 +36,13 @@ export function useDashboard() {
       const q = search.toLowerCase();
       result = result.filter((i) => i.name.toLowerCase().includes(q));
     }
-    return result;
+    // Sort by expiry: soonest first, items without expiry at the end
+    return [...result].sort((a, b) => {
+      if (!a.expiry_date && !b.expiry_date) return 0;
+      if (!a.expiry_date) return 1;
+      if (!b.expiry_date) return -1;
+      return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime();
+    });
   }, [allItems, activeCategory, search]);
 
   const handleCategoryClick = useCallback((c: string) => {
