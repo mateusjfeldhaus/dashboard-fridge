@@ -7,14 +7,17 @@ export function useEditItem() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [item, setItem] = useState<Item | null>(null);
+  const [fetching, setFetching] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
+    setFetching(true);
     getItem(id)
       .then(({ data }) => setItem(data))
-      .catch(() => navigate('/'));
+      .catch(() => navigate('/'))
+      .finally(() => setFetching(false));
   }, [id, navigate]);
 
   const handleSubmit = useCallback(async (formData: FormData) => {
@@ -32,5 +35,5 @@ export function useEditItem() {
     }
   }, [id, navigate]);
 
-  return { item, loading, error, handleSubmit };
+  return { item, fetching, loading, error, handleSubmit };
 }

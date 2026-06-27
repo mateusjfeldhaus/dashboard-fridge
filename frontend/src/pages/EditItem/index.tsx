@@ -1,10 +1,28 @@
 import ItemForm from '../../components/ItemForm';
-import { Page, Card, Title, ErrorMsg } from './styles';
+import { Page, Card, Title, ErrorMsg, SkeletonTitle, SkeletonLabel, SkeletonInput, SkeletonBtn } from './styles';
 import { useEditItem } from './useEditItem';
 
-export default function EditItem() {
-  const { item, loading, error, handleSubmit } = useEditItem();
+function EditItemSkeleton() {
+  return (
+    <Page>
+      <Card>
+        <SkeletonTitle />
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i}>
+            <SkeletonLabel />
+            <SkeletonInput />
+          </div>
+        ))}
+        <SkeletonBtn />
+      </Card>
+    </Page>
+  );
+}
 
+export default function EditItem() {
+  const { item, fetching, loading, error, handleSubmit } = useEditItem();
+
+  if (fetching) return <EditItemSkeleton />;
   if (!item) return null;
 
   return (
