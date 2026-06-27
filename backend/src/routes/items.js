@@ -15,6 +15,17 @@ function safeExt(originalname) {
   return ALLOWED_EXTENSIONS.has(raw) ? raw : 'bin';
 }
 
+/** Extracts filename from a Supabase public URL and deletes it from storage. */
+async function deleteStorageImage(imageUrl) {
+  if (!imageUrl) return;
+  try {
+    const filename = imageUrl.split('/').pop();
+    if (filename) await supabase.storage.from(BUCKET).remove([filename]);
+  } catch (err) {
+    console.error('[storage] Failed to delete old image:', err.message);
+  }
+}
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
@@ -103,6 +114,11 @@ router.put('/:id', upload.single('image'), validate(idParamSchema, 'params'), va
     const { name, category, quantity, unit, notes, expiry_date } = req.body;
     let image_url = req.body.image_url ?? null;
 
+    // Fetch current image before overwriting
+    const { rows: existing } = await pool.query('SELECT image_url FROM items WHERE id=$1', [req.params.id]);
+    if (!existing.length) return res.status(404).json({ error: 'Item not found' });
+    const oldImageUrl = existing[0].image_url;
+
     if (req.file) {
       const ext = safeExt(req.file.originalname);
       const filename = `${uuidv4()}.${ext}`;
@@ -113,6 +129,7 @@ router.put('/:id', upload.single('image'), validate(idParamSchema, 'params'), va
 
       const { data } = supabase.storage.from(BUCKET).getPublicUrl(filename);
       image_url = data.publicUrl;
+      await deleteStorageImage(oldImageUrl); // delete old image after successful upload
     }
 
     const { rows } = await pool.query(
@@ -133,6 +150,10 @@ router.patch('/:id/image', upload.single('image'), validate(idParamSchema, 'para
   try {
     if (!req.file) return res.status(400).json({ error: 'No image provided' });
 
+    const { rows: existing } = await pool.query('SELECT image_url FROM items WHERE id=$1', [req.params.id]);
+    if (!existing.length) return res.status(404).json({ error: 'Item not found' });
+    const oldImageUrl = existing[0].image_url;
+
     const ext = safeExt(req.file.originalname);
     const filename = `${uuidv4()}.${ext}`;
     const { error } = await supabase.storage
@@ -148,6 +169,7 @@ router.patch('/:id/image', upload.single('image'), validate(idParamSchema, 'para
       [image_url, req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'Item not found' });
+    await deleteStorageImage(oldImageUrl);
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
@@ -205,6 +227,7 @@ router.delete('/:id', validate(idParamSchema, 'params'), async (req, res) => {
   try {
     const { rows } = await pool.query('DELETE FROM items WHERE id=$1 RETURNING *', [req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Item not found' });
+    await deleteStorageImage(rows[0].image_url);
     res.json({ message: 'Deleted', item: rows[0] });
   } catch (err) {
     console.error(err);
