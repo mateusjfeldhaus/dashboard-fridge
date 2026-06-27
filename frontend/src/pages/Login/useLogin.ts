@@ -7,7 +7,11 @@ export function useLogin() {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const expired = new URLSearchParams(window.location.search).get('expired') === 'true';
+  const [error, setError] = useState<string | null>(
+    expired ? 'Sua sessão expirou. Entre novamente.' : null
+  );
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
