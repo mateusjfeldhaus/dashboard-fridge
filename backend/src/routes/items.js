@@ -159,22 +159,41 @@ router.patch('/:id/image', upload.single('image'), validate(idParamSchema, 'para
 router.patch('/:id/quantity', validate(idParamSchema, 'params'), validate(quantitySchema), async (req, res) => {
   try {
     const { amount } = req.body;
+    const client = await pool.connect();
 
-    const { rows: current } = await pool.query('SELECT * FROM items WHERE id=$1', [req.params.id]);
-    if (!current.length) return res.status(404).json({ error: 'Item not found' });
+    try {
+      await client.query('BEGIN');
 
-    const newQty = parseFloat(current[0].quantity) - amount;
+      // Lock the row for update — prevents race conditions
+      const { rows: current } = await client.query(
+        'SELECT * FROM items WHERE id=$1 FOR UPDATE',
+        [req.params.id]
+      );
+      if (!current.length) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ error: 'Item not found' });
+      }
 
-    if (newQty <= 0) {
-      await pool.query('DELETE FROM items WHERE id=$1', [req.params.id]);
-      return res.json({ deleted: true, id: req.params.id });
+      const newQty = parseFloat(current[0].quantity) - amount;
+
+      if (newQty <= 0) {
+        await client.query('DELETE FROM items WHERE id=$1', [req.params.id]);
+        await client.query('COMMIT');
+        return res.json({ deleted: true, id: req.params.id });
+      }
+
+      const { rows } = await client.query(
+        'UPDATE items SET quantity=$1, updated_at=NOW() WHERE id=$2 RETURNING *',
+        [newQty, req.params.id]
+      );
+      await client.query('COMMIT');
+      res.json({ deleted: false, item: rows[0] });
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
     }
-
-    const { rows } = await pool.query(
-      'UPDATE items SET quantity=$1, updated_at=NOW() WHERE id=$2 RETURNING *',
-      [newQty, req.params.id]
-    );
-    res.json({ deleted: false, item: rows[0] });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to update quantity' });
