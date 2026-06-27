@@ -1,8 +1,31 @@
 import axios from 'axios';
+import { getToken, clearToken } from '../auth';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
 });
+
+// Attach token to every request
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+// On 401, clear token and redirect to login
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      clearToken();
+      window.location.href = '/login';
+    }
+    return Promise.reject(err);
+  }
+);
+
+export const login = (password) =>
+  api.post('/auth/login', { password });
 
 export const getItems = (params) => api.get('/items', { params });
 export const getItem = (id) => api.get(`/items/${id}`);

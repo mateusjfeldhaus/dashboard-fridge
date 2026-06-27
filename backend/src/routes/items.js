@@ -109,6 +109,32 @@ router.put('/:id', upload.single('image'), async (req, res) => {
   }
 });
 
+// PATCH /api/items/:id/quantity — decrement quantity, delete if reaches 0
+router.patch('/:id/quantity', async (req, res) => {
+  try {
+    const { amount = 1 } = req.body;
+
+    const { rows: current } = await pool.query('SELECT * FROM items WHERE id=$1', [req.params.id]);
+    if (!current.length) return res.status(404).json({ error: 'Item not found' });
+
+    const newQty = parseFloat(current[0].quantity) - parseFloat(amount);
+
+    if (newQty <= 0) {
+      await pool.query('DELETE FROM items WHERE id=$1', [req.params.id]);
+      return res.json({ deleted: true, id: req.params.id });
+    }
+
+    const { rows } = await pool.query(
+      'UPDATE items SET quantity=$1, updated_at=NOW() WHERE id=$2 RETURNING *',
+      [newQty, req.params.id]
+    );
+    res.json({ deleted: false, item: rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update quantity' });
+  }
+});
+
 // DELETE /api/items/:id
 router.delete('/:id', async (req, res) => {
   try {
