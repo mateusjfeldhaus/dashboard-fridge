@@ -1,5 +1,7 @@
 import styled, { keyframes } from 'styled-components';
 
+export { Page, Card, Title, ErrorMsg } from '../../components/FormPage/styles';
+
 const shimmer = keyframes`
   0%   { background-position: -400px 0; }
   100% { background-position:  400px 0; }
@@ -34,29 +36,4 @@ export const SkeletonBtn = styled(SkeletonBase)`
   height: 44px;
   width: 100%;
   margin-top: 8px;
-`;
-
-export const Page = styled.div`
-  max-width: 560px;
-  margin: 40px auto;
-  padding: 0 24px;
-`;
-
-export const Card = styled.div`
-  background: ${({ theme }) => theme.colors.surface};
-  border-radius: ${({ theme }) => theme.radius.lg};
-  box-shadow: ${({ theme }) => theme.shadow.sm};
-  padding: 32px;
-`;
-
-export const Title = styled.h1`
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 28px;
-`;
-
-export const ErrorMsg = styled.p`
-  color: ${({ theme }) => theme.colors.danger};
-  font-size: 0.875rem;
-  margin-bottom: 12px;
 `;
