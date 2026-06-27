@@ -1,0 +1,85 @@
+import type { Item } from '../../types';
+import {
+  Card, ImageWrapper, CamOverlay, Body, Name, Badge, Meta, Expiry,
+  Actions, Btn, RemovePanel, RemoveLabel, RemoveRow,
+  Stepper, StepBtn, StepValue, ConfirmBtn,
+} from './styles';
+import { useItemCard, EMOJI } from './useItemCard';
+
+interface Props {
+  item: Item;
+  onDeleted: (id: string) => void;
+  onUpdated: (item: Item) => void;
+}
+
+export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
+  const {
+    fileRef, cat, categoryStyle,
+    removing, setRemoving, cancelRemove,
+    amount, setAmount, maxQty,
+    loading, imgUploading,
+    isExpiringSoon,
+    handleImageClick, handleImageChange,
+    handleConfirmRemove,
+    navigate,
+  } = useItemCard(item, { onDeleted, onUpdated });
+
+  const expiringSoon = isExpiringSoon();
+
+  return (
+    <Card>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleImageChange}
+      />
+
+      <ImageWrapper onClick={handleImageClick}>
+        {item.image_url
+          ? <img src={item.image_url} alt={item.name} />
+          : <span>{EMOJI[cat] ?? '📦'}</span>}
+        <CamOverlay className="cam-overlay">
+          {imgUploading
+            ? <span>Enviando...</span>
+            : <><>📷</><span>Trocar foto</span></>}
+        </CamOverlay>
+      </ImageWrapper>
+
+      <Body>
+        <Name>{item.name}</Name>
+        <Badge $bg={categoryStyle.bg} $color={categoryStyle.color}>{categoryStyle.label}</Badge>
+        <Meta>{item.quantity} {item.unit}</Meta>
+        {item.expiry_date && (
+          <Expiry $warn={expiringSoon}>
+            {expiringSoon ? '⚠️ ' : ''}Validade: {new Date(item.expiry_date).toLocaleDateString('pt-BR')}
+          </Expiry>
+        )}
+        {item.notes && <Meta>{item.notes}</Meta>}
+      </Body>
+
+      {removing ? (
+        <RemovePanel>
+          <RemoveLabel>Quantas unidades remover?</RemoveLabel>
+          <RemoveRow>
+            <Stepper>
+              <StepBtn onClick={() => setAmount((a) => Math.max(1, a - 1))} disabled={amount <= 1}>−</StepBtn>
+              <StepValue>{amount}</StepValue>
+              <StepBtn onClick={() => setAmount((a) => Math.min(maxQty, a + 1))} disabled={amount >= maxQty}>+</StepBtn>
+            </Stepper>
+            <ConfirmBtn onClick={handleConfirmRemove} disabled={loading}>
+              {amount >= maxQty ? '🗑 Remover tudo' : `Remover ${amount}`}
+            </ConfirmBtn>
+          </RemoveRow>
+          <Btn $variant="ghost" onClick={cancelRemove}>Cancelar</Btn>
+        </RemovePanel>
+      ) : (
+        <Actions>
+          <Btn onClick={() => navigate(`/edit/${item.id}`)}>Editar</Btn>
+          <Btn $variant="danger" onClick={() => setRemoving(true)}>Remover</Btn>
+        </Actions>
+      )}
+    </Card>
+  );
+}

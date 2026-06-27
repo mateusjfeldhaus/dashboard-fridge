@@ -1,8 +1,7 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { clearToken } from '../auth';
+import { Link } from 'react-router-dom';
 
-const Nav = styled.nav`
+export const Nav = styled.nav`
   background: ${({ theme }) => theme.colors.surface};
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   padding: 0 24px;
@@ -16,7 +15,7 @@ const Nav = styled.nav`
   box-shadow: ${({ theme }) => theme.shadow.sm};
 `;
 
-const Logo = styled(Link)`
+export const Logo = styled(Link)`
   font-size: 1.2rem;
   font-weight: 700;
   color: ${({ theme }) => theme.colors.primary};
@@ -25,19 +24,19 @@ const Logo = styled(Link)`
   gap: 8px;
 `;
 
-const NavLinks = styled.div`
+export const NavLinks = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
 `;
 
-const NavLink = styled(Link)`
+export const NavLink = styled(Link)<{ $active: boolean }>`
   padding: 6px 16px;
   border-radius: ${({ theme }) => theme.radius.md};
   font-size: 0.9rem;
   font-weight: 500;
   color: ${({ $active, theme }) => $active ? theme.colors.primary : theme.colors.textSecondary};
-  background: ${({ $active, theme }) => $active ? '#eff6ff' : 'transparent'};
+  background: ${({ $active }) => $active ? '#eff6ff' : 'transparent'};
   transition: all 0.15s;
 
   &:hover {
@@ -46,7 +45,7 @@ const NavLink = styled(Link)`
   }
 `;
 
-const LogoutBtn = styled.button`
+export const LogoutBtn = styled.button`
   padding: 6px 16px;
   border-radius: ${({ theme }) => theme.radius.md};
   font-size: 0.9rem;
@@ -61,24 +60,3 @@ const LogoutBtn = styled.button`
     color: ${({ theme }) => theme.colors.danger};
   }
 `;
-
-export default function Navbar() {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    clearToken();
-    navigate('/login');
-  };
-
-  return (
-    <Nav>
-      <Logo to="/">🧊 Minha Geladeira</Logo>
-      <NavLinks>
-        <NavLink to="/" $active={pathname === '/'}>Estoque</NavLink>
-        <NavLink to="/add" $active={pathname === '/add'}>+ Adicionar</NavLink>
-        <LogoutBtn onClick={handleLogout}>Sair</LogoutBtn>
-      </NavLinks>
-    </Nav>
-  );
-}

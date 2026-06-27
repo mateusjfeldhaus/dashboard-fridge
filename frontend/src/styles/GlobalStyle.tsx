@@ -11,8 +11,6 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   a { text-decoration: none; color: inherit; }
-
   img { display: block; max-width: 100%; }
-
   button { cursor: pointer; font-family: inherit; }
 `;
