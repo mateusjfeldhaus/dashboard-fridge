@@ -7,6 +7,14 @@ import { validate } from '../middleware/validate.js';
 import { itemBodySchema, quantitySchema, idParamSchema, getItemsQuerySchema } from '../schemas.js';
 
 const router = Router();
+
+const ALLOWED_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif']);
+
+function safeExt(originalname) {
+  const raw = originalname.split('.').pop()?.toLowerCase() ?? '';
+  return ALLOWED_EXTENSIONS.has(raw) ? raw : 'bin';
+}
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
@@ -66,7 +74,7 @@ router.post('/', upload.single('image'), validate(itemBodySchema), async (req, r
     let image_url = null;
 
     if (req.file) {
-      const ext = req.file.originalname.split('.').pop();
+      const ext = safeExt(req.file.originalname);
       const filename = `${uuidv4()}.${ext}`;
       const { error } = await supabase.storage
         .from(BUCKET)
@@ -96,7 +104,7 @@ router.put('/:id', upload.single('image'), validate(idParamSchema, 'params'), va
     let image_url = req.body.image_url ?? null;
 
     if (req.file) {
-      const ext = req.file.originalname.split('.').pop();
+      const ext = safeExt(req.file.originalname);
       const filename = `${uuidv4()}.${ext}`;
       const { error } = await supabase.storage
         .from(BUCKET)
@@ -125,7 +133,7 @@ router.patch('/:id/image', upload.single('image'), validate(idParamSchema, 'para
   try {
     if (!req.file) return res.status(400).json({ error: 'No image provided' });
 
-    const ext = req.file.originalname.split('.').pop();
+    const ext = safeExt(req.file.originalname);
     const filename = `${uuidv4()}.${ext}`;
     const { error } = await supabase.storage
       .from(BUCKET)

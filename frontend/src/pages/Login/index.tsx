@@ -8,7 +8,7 @@ export default function Login() {
     <Page>
       <Card>
         <Logo><img src="/favicon.svg" width={60} height={60} alt="" /></Logo>
-        <Title>Minha Geladeira</Title>
+        <Title>Meu Freezer</Title>
         <form onSubmit={handleSubmit}>
           <Field>
             <Label htmlFor="field-password">Senha</Label>
