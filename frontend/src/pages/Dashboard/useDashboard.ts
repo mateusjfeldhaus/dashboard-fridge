@@ -17,13 +17,16 @@ export function useDashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  const [error, setError] = useState<string | null>(null);
+
   // Fetch all items once on mount
   useEffect(() => {
     setLoading(true);
-    getItems({}).then(({ data }) => {
-      setAllItems(data);
-      setLoading(false);
-    });
+    setError(null);
+    getItems({})
+      .then(({ data }) => setAllItems(data))
+      .catch(() => setError('Não foi possível carregar os itens. Verifique sua conexão.'))
+      .finally(() => setLoading(false));
   }, []);
 
   // Filter + sort client-side — instant, no extra API calls
@@ -65,7 +68,7 @@ export function useDashboard() {
     : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1);
 
   return {
-    items, loading, search, setSearch,
+    items, loading, error, search, setSearch,
     activeCategory, label,
     handleCategoryClick,
     handleDeleted, handleUpdated,

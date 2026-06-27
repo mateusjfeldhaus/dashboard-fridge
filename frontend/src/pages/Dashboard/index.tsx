@@ -4,7 +4,7 @@ import { useDashboard, CATEGORIES } from './useDashboard';
 
 export default function Dashboard() {
   const {
-    items, loading, search, setSearch,
+    items, loading, error, search, setSearch,
     activeCategory, label,
     handleCategoryClick,
     handleDeleted, handleUpdated,
@@ -30,6 +30,8 @@ export default function Dashboard() {
 
       {loading ? (
         <Empty>Carregando...</Empty>
+      ) : error ? (
+        <Empty>⚠️ {error}</Empty>
       ) : items.length === 0 ? (
         <Empty>Nenhum item encontrado. Que tal adicionar algo?</Empty>
       ) : (
