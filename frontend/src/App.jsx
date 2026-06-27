@@ -21,6 +21,7 @@ export default function App() {
               <Navbar />
               <Routes>
                 <Route path="/" element={<Dashboard />} />
+                <Route path="/category/:category" element={<Dashboard />} />
                 <Route path="/add" element={<AddItem />} />
                 <Route path="/edit/:id" element={<EditItem />} />
               </Routes>

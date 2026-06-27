@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { getItems } from '../api/items';
 import ItemCard from '../components/ItemCard';
@@ -66,35 +67,45 @@ const Empty = styled.div`
 const CATEGORIES = ['todos', 'carne', 'frango', 'porco', 'peixe', 'frutos do mar', 'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro'];
 
 export default function Dashboard() {
+  const { category: categoryParam } = useParams();
+  const navigate = useNavigate();
+  const activeCategory = categoryParam || 'todos';
+
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState('todos');
   const [search, setSearch] = useState('');
 
-  const fetchItems = async () => {
+  const fetchItems = async (cat = activeCategory, q = search) => {
     setLoading(true);
     const params = {};
-    if (category !== 'todos') params.category = category;
-    if (search) params.search = search;
+    if (cat !== 'todos') params.category = cat;
+    if (q) params.search = q;
     const { data } = await getItems(params);
     setItems(data);
     setLoading(false);
   };
 
-  useEffect(() => { fetchItems(); }, [category]);
+  useEffect(() => { fetchItems(); }, [activeCategory]);
+
+  const handleCategoryClick = (c) => {
+    if (c === 'todos') navigate('/');
+    else navigate(`/category/${encodeURIComponent(c)}`);
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
-    fetchItems();
+    fetchItems(activeCategory, search);
   };
 
   const handleDeleted = (id) => setItems((prev) => prev.filter((i) => i.id !== id));
   const handleUpdated = (updated) => setItems((prev) => prev.map((i) => i.id === updated.id ? updated : i));
 
+  const label = activeCategory === 'todos' ? 'Todos os itens' : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1);
+
   return (
     <Page>
       <Header>
-        <Title>🧊 Estoque da Geladeira</Title>
+        <Title>🧊 {label}</Title>
         <Filters>
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
             <SearchInput
@@ -105,7 +116,7 @@ export default function Dashboard() {
             <FilterBtn type="submit" $active>Buscar</FilterBtn>
           </form>
           {CATEGORIES.map((c) => (
-            <FilterBtn key={c} $active={category === c} onClick={() => setCategory(c)}>
+            <FilterBtn key={c} $active={activeCategory === c} onClick={() => handleCategoryClick(c)}>
               {c.charAt(0).toUpperCase() + c.slice(1)}
             </FilterBtn>
           ))}
