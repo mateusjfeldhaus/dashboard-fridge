@@ -18,13 +18,13 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
     removing, setRemoving, cancelRemove,
     amount, setAmount, maxQty,
     loading, imgUploading,
-    isExpiringSoon,
+    getExpiryStatus,
     handleImageClick, handleImageChange,
     handleConfirmRemove,
     navigate,
   } = useItemCard(item, { onDeleted, onUpdated });
 
-  const expiringSoon = isExpiringSoon();
+  const expiryStatus = getExpiryStatus();
 
   return (
     <Card>
@@ -52,8 +52,9 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
         <Badge $bg={categoryStyle.bg} $color={categoryStyle.color}>{categoryStyle.label}</Badge>
         <Meta>{item.quantity} {item.unit}</Meta>
         {item.expiry_date && (
-          <Expiry $warn={expiringSoon}>
-            {expiringSoon ? '⚠️ ' : ''}Validade: {new Date(item.expiry_date).toLocaleDateString('pt-BR')}
+          <Expiry $warn={expiryStatus}>
+            {expiryStatus === 'urgent' ? '🔴 ' : expiryStatus === 'soon' ? '🟡 ' : ''}
+            Validade: {new Date(item.expiry_date).toLocaleDateString('pt-BR')}
           </Expiry>
         )}
         {item.notes && <Meta>{item.notes}</Meta>}

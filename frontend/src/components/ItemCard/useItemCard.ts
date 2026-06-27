@@ -29,10 +29,12 @@ export function useItemCard(item: Item, { onDeleted, onUpdated }: UseItemCardOpt
   const categoryStyle = theme.categories[cat as keyof typeof theme.categories] ?? theme.categories.outro;
   const maxQty = Number(item.quantity);
 
-  const isExpiringSoon = useCallback((): boolean => {
-    if (!item.expiry_date) return false;
+  const getExpiryStatus = useCallback((): 'urgent' | 'soon' | null => {
+    if (!item.expiry_date) return null;
     const days = (new Date(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
-    return days <= 3;
+    if (days <= 7) return 'urgent';
+    if (days <= 30) return 'soon';
+    return null;
   }, [item.expiry_date]);
 
   const handleImageClick = useCallback(() => {
@@ -88,7 +90,7 @@ export function useItemCard(item: Item, { onDeleted, onUpdated }: UseItemCardOpt
     removing, setRemoving, cancelRemove,
     amount, setAmount, maxQty,
     loading, imgUploading,
-    isExpiringSoon,
+    getExpiryStatus,
     handleImageClick, handleImageChange,
     handleConfirmRemove, handleFullDelete,
     navigate,

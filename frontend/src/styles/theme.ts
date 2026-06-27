@@ -4,6 +4,7 @@ export const theme = {
     primaryHover: '#1d4ed8',
     danger: '#dc2626',
     dangerHover: '#b91c1c',
+    warning: '#d97706',
     background: '#f1f5f9',
     surface: '#ffffff',
     border: '#e2e8f0',

@@ -79,9 +79,12 @@ export const Meta = styled.div`
   color: ${({ theme }) => theme.colors.textSecondary};
 `;
 
-export const Expiry = styled.div<{ $warn: boolean }>`
+export const Expiry = styled.div<{ $warn: 'urgent' | 'soon' | null }>`
   font-size: 0.8rem;
-  color: ${({ $warn, theme }) => $warn ? theme.colors.danger : theme.colors.textMuted};
+  color: ${({ $warn, theme }) =>
+    $warn === 'urgent' ? theme.colors.danger :
+    $warn === 'soon'   ? theme.colors.warning :
+    theme.colors.textMuted};
   font-weight: ${({ $warn }) => $warn ? '600' : '400'};
 `;
 
