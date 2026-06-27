@@ -12,7 +12,9 @@ export function validate(schema, source = 'body') {
         details: result.error.flatten().fieldErrors,
       });
     }
-    req[source] = result.data; // replace with coerced/defaulted values
+    // In Express 5 (ESM strict mode), req.query and req.params are read-only getters.
+    // Only reassign req.body, which is writable and benefits from coercion/defaults.
+    if (source === 'body') req.body = result.data;
     next();
   };
 }
