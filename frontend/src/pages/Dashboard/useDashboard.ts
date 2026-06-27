@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getItems } from '../../api/items';
 import type { Item } from '../../types';
@@ -13,39 +13,44 @@ export function useDashboard() {
   const navigate = useNavigate();
 
   const activeCategory = categoryParam ?? 'todos';
-  const [items, setItems] = useState<Item[]>([]);
+  const [allItems, setAllItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  const fetchItems = useCallback(async (cat = activeCategory, q = search) => {
+  // Fetch all items once on mount
+  useEffect(() => {
     setLoading(true);
-    const params: Record<string, string> = {};
-    if (cat !== 'todos') params.category = cat;
-    if (q) params.search = q;
-    const { data } = await getItems(params);
-    setItems(data);
-    setLoading(false);
-  }, [activeCategory, search]);
+    getItems({}).then(({ data }) => {
+      setAllItems(data);
+      setLoading(false);
+    });
+  }, []);
 
-  useEffect(() => { void fetchItems(); }, [activeCategory]);
+  // Filter client-side — instant, no extra API calls
+  const items = useMemo(() => {
+    let result = allItems;
+    if (activeCategory !== 'todos') {
+      result = result.filter((i) => i.category === activeCategory);
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((i) => i.name.toLowerCase().includes(q));
+    }
+    return result;
+  }, [allItems, activeCategory, search]);
 
   const handleCategoryClick = useCallback((c: string) => {
     if (c === 'todos') navigate('/');
     else navigate(`/category/${encodeURIComponent(c)}`);
   }, [navigate]);
 
-  const handleSearch = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    void fetchItems(activeCategory, search);
-  }, [activeCategory, search, fetchItems]);
-
   const handleDeleted = useCallback(
-    (id: string) => setItems((prev) => prev.filter((i) => i.id !== id)),
+    (id: string) => setAllItems((prev) => prev.filter((i) => i.id !== id)),
     []
   );
 
   const handleUpdated = useCallback(
-    (updated: Item) => setItems((prev) => prev.map((i) => i.id === updated.id ? updated : i)),
+    (updated: Item) => setAllItems((prev) => prev.map((i) => i.id === updated.id ? updated : i)),
     []
   );
 
@@ -56,7 +61,7 @@ export function useDashboard() {
   return {
     items, loading, search, setSearch,
     activeCategory, label,
-    handleCategoryClick, handleSearch,
+    handleCategoryClick,
     handleDeleted, handleUpdated,
   };
 }

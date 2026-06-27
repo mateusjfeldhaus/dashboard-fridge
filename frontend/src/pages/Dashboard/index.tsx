@@ -6,7 +6,7 @@ export default function Dashboard() {
   const {
     items, loading, search, setSearch,
     activeCategory, label,
-    handleCategoryClick, handleSearch,
+    handleCategoryClick,
     handleDeleted, handleUpdated,
   } = useDashboard();
 
@@ -15,14 +15,11 @@ export default function Dashboard() {
       <Header>
         <Title>🧊 {label}</Title>
         <Filters>
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
-            <SearchInput
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar item..."
-            />
-            <FilterBtn type="submit" $active={true}>Buscar</FilterBtn>
-          </form>
+          <SearchInput
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar item..."
+          />
           {CATEGORIES.map((c) => (
             <FilterBtn key={c} $active={activeCategory === c} onClick={() => handleCategoryClick(c)}>
               {c.charAt(0).toUpperCase() + c.slice(1)}
