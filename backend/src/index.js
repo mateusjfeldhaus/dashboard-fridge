@@ -10,7 +10,7 @@ import { notifyExpiringItems } from './jobs/notifyExpiring.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors({ origin: process.env.FRONTEND_URL || '*' }));
+app.use(cors({ origin: process.env.FRONTEND_URL || false }));
 app.use(express.json());
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
