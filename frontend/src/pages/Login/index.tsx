@@ -7,7 +7,7 @@ export default function Login() {
   return (
     <Page>
       <Card>
-        <Logo>🧊</Logo>
+        <Logo><img src="/favicon.svg" width={60} height={60} alt="" /></Logo>
         <Title>Minha Geladeira</Title>
         <form onSubmit={handleSubmit}>
           <Field>
