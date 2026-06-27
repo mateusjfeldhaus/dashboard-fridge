@@ -89,6 +89,7 @@ export default function Dashboard() {
   };
 
   const handleDeleted = (id) => setItems((prev) => prev.filter((i) => i.id !== id));
+  const handleUpdated = (updated) => setItems((prev) => prev.map((i) => i.id === updated.id ? updated : i));
 
   return (
     <Page>
@@ -118,7 +119,7 @@ export default function Dashboard() {
       ) : (
         <Grid>
           {items.map((item) => (
-            <ItemCard key={item.id} item={item} onDeleted={handleDeleted} />
+            <ItemCard key={item.id} item={item} onDeleted={handleDeleted} onUpdated={handleUpdated} />
           ))}
         </Grid>
       )}

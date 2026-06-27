@@ -34,3 +34,4 @@ export const createItem = (formData) =>
 export const updateItem = (id, formData) =>
   api.put(`/items/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 export const deleteItem = (id) => api.delete(`/items/${id}`);
+export const decrementQuantity = (id, amount) => api.patch(`/items/${id}/quantity`, { amount });
