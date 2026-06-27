@@ -1,9 +1,5 @@
 import { z } from 'zod';
-
-const CATEGORIES = [
-  'carne', 'frango', 'porco', 'peixe', 'frutos do mar',
-  'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro',
-];
+import { CATEGORIES } from './categories.js';
 
 export const loginSchema = z.object({
   password: z.string().min(1, 'Senha obrigatória'),
@@ -11,7 +7,7 @@ export const loginSchema = z.object({
 
 export const itemBodySchema = z.object({
   name:        z.string().min(1, 'Nome obrigatório').max(100),
-  category:    z.enum(CATEGORIES, { message: 'Categoria inválida' }),
+  category:    z.enum(/** @type {[string, ...string[]]} */ (CATEGORIES), { message: 'Categoria inválida' }),
   quantity:    z.coerce.number().positive('Quantidade deve ser positiva').default(1),
   unit:        z.string().min(1).max(20).default('un'),
   notes:       z.string().max(500).optional().nullable(),
@@ -28,6 +24,6 @@ export const idParamSchema = z.object({
 });
 
 export const getItemsQuerySchema = z.object({
-  category: z.enum(CATEGORIES).optional(),
+  category: z.enum(/** @type {[string, ...string[]]} */ (CATEGORIES)).optional(),
   search:   z.string().max(100).optional(),
 });

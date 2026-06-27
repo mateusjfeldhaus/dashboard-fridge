@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getItems } from '../../api/items';
+import { CATEGORIES as BASE_CATEGORIES } from '../../constants/categories';
 import type { Item } from '../../types';
 
-export const CATEGORIES = [
-  'todos', 'carne', 'frango', 'porco', 'peixe', 'frutos do mar',
-  'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro',
-] as const;
+export const CATEGORIES = ['todos', ...BASE_CATEGORIES] as const;
 
 export function useDashboard() {
   const { category: categoryParam } = useParams<{ category?: string }>();

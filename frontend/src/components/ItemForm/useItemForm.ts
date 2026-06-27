@@ -1,10 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { CATEGORIES, CATEGORY_CONFIG } from '../../constants/categories';
 import type { Item } from '../../types';
 
-export const CATEGORIES = [
-  'carne', 'frango', 'porco', 'peixe', 'frutos do mar',
-  'congelados', 'pães', 'sopa', 'massas', 'proteina', 'outro',
-] as const;
+export { CATEGORIES, CATEGORY_CONFIG };
 
 export const UNITS = ['un', 'kg', 'g', 'l', 'ml', 'pacote', 'caixa'] as const;
 
