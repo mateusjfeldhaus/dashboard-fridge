@@ -1,4 +1,12 @@
 import 'dotenv/config';
+
+const REQUIRED_ENV = ['JWT_SECRET', 'ADMIN_PASSWORD', 'DATABASE_URL', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'];
+const missing = REQUIRED_ENV.filter((k) => !process.env[k]);
+if (missing.length) {
+  console.error(`[fatal] Missing required env vars: ${missing.join(', ')}`);
+  process.exit(1);
+}
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
