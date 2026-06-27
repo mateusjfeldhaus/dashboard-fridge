@@ -26,8 +26,8 @@ api.interceptors.response.use(
 export const login = (password: string) =>
   api.post<LoginResponse>('/auth/login', { password });
 
-export const getItems = (params?: Record<string, string>) =>
-  api.get<Item[]>('/items', { params });
+export const getItems = (params?: Record<string, string>, signal?: AbortSignal) =>
+  api.get<Item[]>('/items', { params, signal });
 
 export const getItem = (id: string) =>
   api.get<Item>(`/items/${id}`);

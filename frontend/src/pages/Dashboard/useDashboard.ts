@@ -19,12 +19,18 @@ export function useDashboard() {
 
   // Fetch all items once on mount
   useEffect(() => {
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
-    getItems({})
+    getItems({}, controller.signal)
       .then(({ data }) => setAllItems(data))
-      .catch(() => setError('Não foi possível carregar os itens. Verifique sua conexão.'))
+      .catch((err) => {
+        if (err.name !== 'CanceledError') {
+          setError('Não foi possível carregar os itens. Verifique sua conexão.');
+        }
+      })
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   // Filter + sort client-side — instant, no extra API calls
