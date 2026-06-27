@@ -11,8 +11,9 @@ export default function Login() {
         <Title>Minha Geladeira</Title>
         <form onSubmit={handleSubmit}>
           <Field>
-            <Label>Senha</Label>
+            <Label htmlFor="field-password">Senha</Label>
             <Input
+              id="field-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
