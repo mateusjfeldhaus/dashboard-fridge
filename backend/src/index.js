@@ -46,4 +46,11 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// Generic error handler — must be last, must have 4 args
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error('[unhandled error]', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
