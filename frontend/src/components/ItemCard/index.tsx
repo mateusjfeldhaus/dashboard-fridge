@@ -4,7 +4,8 @@ import {
   Actions, Btn, RemovePanel, RemoveLabel, RemoveRow,
   Stepper, StepBtn, StepValue, ConfirmBtn,
 } from './styles';
-import { useItemCard, EMOJI } from './useItemCard';
+import { useItemCard, getCategoryEmoji } from './useItemCard';
+import { formatDate } from '../../utils/date';
 
 interface Props {
   item: Item;
@@ -36,10 +37,10 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
         onChange={handleImageChange}
       />
 
-      <ImageWrapper onClick={handleImageClick}>
+      <ImageWrapper type="button" onClick={handleImageClick} aria-label="Trocar foto do item">
         {item.image_url
           ? <img src={item.image_url} alt={item.name} />
-          : <span>{EMOJI[cat] ?? '📦'}</span>}
+          : <span>{getCategoryEmoji(cat)}</span>}
         <CamOverlay className="cam-overlay">
           {imgUploading
             ? <span>Enviando...</span>
@@ -54,7 +55,7 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
         {item.expiry_date && (
           <Expiry $warn={expiryStatus}>
             {expiryStatus === 'urgent' ? '🔴 ' : expiryStatus === 'soon' ? '🟡 ' : ''}
-            Validade: {new Date(item.expiry_date).toLocaleDateString('pt-BR')}
+            Validade: {formatDate(item.expiry_date)}
           </Expiry>
         )}
         {item.notes && <Meta>{item.notes}</Meta>}
@@ -65,9 +66,9 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
           <RemoveLabel>Quantas unidades remover?</RemoveLabel>
           <RemoveRow>
             <Stepper>
-              <StepBtn onClick={() => setAmount((a) => Math.max(1, a - 1))} disabled={amount <= 1}>−</StepBtn>
+              <StepBtn onClick={() => setAmount((a) => Math.max(1, a - 1))} disabled={amount <= 1} aria-label="Diminuir quantidade">−</StepBtn>
               <StepValue>{amount}</StepValue>
-              <StepBtn onClick={() => setAmount((a) => Math.min(maxQty, a + 1))} disabled={amount >= maxQty}>+</StepBtn>
+              <StepBtn onClick={() => setAmount((a) => Math.min(maxQty, a + 1))} disabled={amount >= maxQty} aria-label="Aumentar quantidade">+</StepBtn>
             </Stepper>
             <ConfirmBtn onClick={handleConfirmRemove} disabled={loading}>
               {amount >= maxQty ? '🗑 Remover tudo' : `Remover ${amount}`}

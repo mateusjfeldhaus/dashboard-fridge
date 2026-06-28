@@ -15,7 +15,7 @@ export const Card = styled.div`
   }
 `;
 
-export const ImageWrapper = styled.div`
+export const ImageWrapper = styled.button`
   width: 100%;
   aspect-ratio: 4/3;
   background: ${({ theme }) => theme.colors.background};
@@ -26,10 +26,14 @@ export const ImageWrapper = styled.div`
   overflow: hidden;
   position: relative;
   cursor: pointer;
+  border: none;
+  padding: 0;
 
   img { width: 100%; height: 100%; object-fit: cover; }
 
-  &:hover .cam-overlay { opacity: 1; }
+  &:hover .cam-overlay, &:focus-visible .cam-overlay { opacity: 1; }
+
+  &:focus-visible { outline: 2px solid ${({ theme }) => theme.colors.primary}; outline-offset: 2px; }
 `;
 
 export const CamOverlay = styled.div`

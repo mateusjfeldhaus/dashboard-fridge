@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getItems } from '../../api/items';
 import { CATEGORIES as BASE_CATEGORIES } from '../../constants/categories';
+import { parseLocalDate } from '../../utils/date';
 import type { Item } from '../../types';
 
 export const CATEGORIES = ['todos', ...BASE_CATEGORIES] as const;
@@ -48,7 +49,7 @@ export function useDashboard() {
       if (!a.expiry_date && !b.expiry_date) return 0;
       if (!a.expiry_date) return 1;
       if (!b.expiry_date) return -1;
-      return new Date(a.expiry_date).getTime() - new Date(b.expiry_date).getTime();
+      return parseLocalDate(a.expiry_date).getTime() - parseLocalDate(b.expiry_date).getTime();
     });
   }, [allItems, activeCategory, search]);
 

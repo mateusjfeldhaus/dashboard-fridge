@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { CATEGORIES, CATEGORY_CONFIG } from '../../constants/categories';
+import { CATEGORIES } from '../../constants/categories';
 import type { Item } from '../../types';
 
-export { CATEGORIES, CATEGORY_CONFIG };
+export { CATEGORIES };
 
 export const UNITS = ['un', 'kg', 'g', 'l', 'ml', 'pacote', 'caixa'] as const;
 

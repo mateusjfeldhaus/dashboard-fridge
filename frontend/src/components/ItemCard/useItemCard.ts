@@ -2,13 +2,15 @@ import { useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { decrementQuantity, updateItemImage } from '../../api/items';
+import { parseLocalDate } from '../../utils/date';
+import { CATEGORY_CONFIG } from '../../constants/categories';
 import type { Item } from '../../types';
 
-export const EMOJI: Record<string, string> = {
-  carne: '🥩', frango: '🍗', porco: '🥓', peixe: '🐟',
-  'frutos do mar': '🦐', congelados: '🧊', 'pães': '🍞',
-  sopa: '🍲', massas: '🍝', proteina: '💪', outro: '📦',
-};
+/** Returns just the emoji from CATEGORY_CONFIG label, e.g. "🥩 Carne" → "🥩" */
+export function getCategoryEmoji(cat: string): string {
+  const cfg = CATEGORY_CONFIG[cat as keyof typeof CATEGORY_CONFIG];
+  return cfg ? cfg.label.split(' ')[0] : '📦';
+}
 
 interface UseItemCardOptions {
   onDeleted: (id: string) => void;
@@ -31,7 +33,7 @@ export function useItemCard(item: Item, { onDeleted, onUpdated }: UseItemCardOpt
 
   const getExpiryStatus = useCallback((): 'urgent' | 'soon' | null => {
     if (!item.expiry_date) return null;
-    const days = (new Date(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+    const days = (parseLocalDate(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
     if (days <= 7) return 'urgent';
     if (days <= 30) return 'soon';
     return null;

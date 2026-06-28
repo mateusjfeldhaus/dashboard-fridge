@@ -21,7 +21,7 @@ export default function Dashboard() {
             placeholder="Buscar item..."
           />
           {CATEGORIES.map((c) => (
-            <FilterBtn key={c} $active={activeCategory === c} onClick={() => handleCategoryClick(c)}>
+            <FilterBtn key={c} $active={activeCategory === c} onClick={() => handleCategoryClick(c)} aria-pressed={activeCategory === c}>
               {c.charAt(0).toUpperCase() + c.slice(1)}
             </FilterBtn>
           ))}

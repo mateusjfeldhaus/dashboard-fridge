@@ -13,11 +13,13 @@ export function useEditItem() {
 
   useEffect(() => {
     if (!id) return;
+    const controller = new AbortController();
     setFetching(true);
-    getItem(id)
+    getItem(id, controller.signal)
       .then(({ data }) => setItem(data))
-      .catch(() => navigate('/'))
+      .catch((err) => { if (err.name !== 'CanceledError') navigate('/'); })
       .finally(() => setFetching(false));
+    return () => controller.abort();
   }, [id, navigate]);
 
   const handleSubmit = useCallback(async (formData: FormData) => {
