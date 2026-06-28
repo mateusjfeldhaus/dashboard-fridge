@@ -42,7 +42,11 @@ export function useDashboard() {
     }
     if (search.trim()) {
       const q = search.toLowerCase();
-      result = result.filter((i) => i.name.toLowerCase().includes(q));
+      result = result.filter((i) =>
+        i.name.toLowerCase().includes(q) ||
+        i.category.toLowerCase().includes(q) ||
+        (i.notes ?? '').toLowerCase().includes(q)
+      );
     }
     // Sort by expiry: soonest first, items without expiry at the end
     return [...result].sort((a, b) => {

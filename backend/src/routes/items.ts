@@ -51,7 +51,7 @@ router.get('/', validate(getItemsQuerySchema, 'query'), async (req, res) => {
     }
     if (search) {
       params.push(`%${search}%`);
-      conditions.push(`name ILIKE $${params.length}`);
+      conditions.push(`(name ILIKE $${params.length} OR category ILIKE $${params.length} OR notes ILIKE $${params.length})`);
     }
     if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
     query += ' ORDER BY created_at DESC';
