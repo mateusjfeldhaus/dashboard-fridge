@@ -9,7 +9,7 @@ const pool = new Pool({
   connectionTimeoutMillis: 5_000,
 });
 
-pool.on('error', (err) => {
+pool.on('error', (err: Error) => {
   console.error('[db] Idle client error:', err.message);
 });
 

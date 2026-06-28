@@ -8,7 +8,7 @@ export default function Navbar() {
 
   return (
     <Nav>
-      <Logo to="/"><img src="/favicon.svg" width={24} height={24} alt="" /> Minha Geladeira</Logo>
+      <Logo to="/"><img src="/favicon.svg" width={24} height={24} alt="" /> Meu Freezer</Logo>
       <NavLinks>
         <NavLink to="/" $active={pathname === '/' || pathname.startsWith('/category')}>Estoque</NavLink>
         <NavLink to="/add" $active={pathname === '/add'}>+ Adicionar</NavLink>

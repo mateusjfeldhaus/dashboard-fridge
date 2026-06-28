@@ -11,10 +11,10 @@ console.log(`Enviando email de teste para: ${to} ...`);
 
 await sendMail({
   to,
-  subject: '✅ Teste — Minha Geladeira funcionando!',
+  subject: '✅ Teste — Meu Freezer funcionando!',
   html: `
     <div style="font-family:sans-serif; max-width:480px;">
-      <h2 style="color:#1e293b;">🧊 Minha Geladeira</h2>
+      <h2 style="color:#1e293b;">🧊 Meu Freezer</h2>
       <p>Email de teste enviado com sucesso!</p>
       <p style="color:#64748b;">As notificações diárias de validade estão configuradas e vão chegar todo dia às <strong>8h da manhã</strong>.</p>
     </div>

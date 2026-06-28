@@ -2,13 +2,13 @@
   "name": "dashboard-fridge-backend",
   "version": "1.0.0",
   "description": "Fridge inventory API",
-  "main": "src/index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "setup-db": "node scripts/setup-db.js",
-    "migrate:frutos-do-mar": "node scripts/migrate-add-frutos-do-mar.js",
-    "test:email": "node scripts/test-email.js"
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "setup-db": "tsx scripts/setup-db.js",
+    "migrate:frutos-do-mar": "tsx scripts/migrate-add-frutos-do-mar.js",
+    "test:email": "tsx scripts/test-email.ts"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +30,14 @@
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@types/cors": "^2.8.17",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.0.0",
+    "@types/nodemailer": "^6.4.17",
+    "@types/pg": "^8.11.10",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
   }
 }

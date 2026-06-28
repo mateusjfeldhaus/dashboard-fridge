@@ -1,14 +1,22 @@
 import pool from '../db.js';
 import { sendMail } from '../mailer.js';
 
-export async function notifyExpiringItems() {
+interface ExpiringItem {
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  expiry_date: string;
+}
+
+export async function notifyExpiringItems(): Promise<void> {
   const to = process.env.EMAIL_TO;
   if (!to || !process.env.EMAIL_FROM || !process.env.EMAIL_APP_PASSWORD) {
     console.log('[notify] EMAIL_FROM/EMAIL_TO/EMAIL_APP_PASSWORD not set, skipping.');
     return;
   }
 
-  const { rows } = await pool.query(`
+  const { rows } = await pool.query<ExpiringItem>(`
     SELECT name, category, quantity, unit, expiry_date
     FROM items
     WHERE expiry_date IS NOT NULL
@@ -39,7 +47,7 @@ export async function notifyExpiringItems() {
 
   const html = `
     <div style="font-family:sans-serif; max-width:560px; margin:0 auto;">
-      <h2 style="color:#1e293b;">🧊 Minha Geladeira — Aviso de Validade</h2>
+      <h2 style="color:#1e293b;">🧊 Meu Freezer — Aviso de Validade</h2>
       <p style="color:#64748b;">Os itens abaixo vencem nos próximos 30 dias:</p>
       <table style="width:100%; border-collapse:collapse; margin-top:16px;">
         <thead>
@@ -52,7 +60,7 @@ export async function notifyExpiringItems() {
         <tbody>${rows_html}</tbody>
       </table>
       <p style="margin-top:24px; font-size:0.8rem; color:#94a3b8;">
-        Enviado automaticamente pela Minha Geladeira.
+        Enviado automaticamente pelo Meu Freezer.
       </p>
     </div>
   `;

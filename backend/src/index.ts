@@ -7,7 +7,7 @@ if (missing.length) {
   process.exit(1);
 }
 
-import express from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cron from 'node-cron';
@@ -17,38 +17,38 @@ import { requireAuth } from './middleware/auth.js';
 import { notifyExpiringItems } from './jobs/notifyExpiring.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT ?? 3001;
 
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' }, // permite fetch cross-origin (Vercel → Railway)
-}));
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: process.env.FRONTEND_URL || false }));
 app.use(express.json());
 
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRouter);
 app.use('/api/items', requireAuth, itemsRouter);
 
-// Daily expiry check at 8am Brasília time (UTC-3 = 11:00 UTC)
-cron.schedule('0 11 * * *', () => {
+// Daily expiry check at 8am Brasília time
+cron.schedule('0 8 * * *', () => {
   console.log('[cron] Running daily expiry notification...');
   notifyExpiringItems().catch(console.error);
 }, { timezone: 'America/Sao_Paulo' });
 
-// Multer error handler (file too large, wrong type)
-app.use((err, req, res, next) => {
+// Multer error handler
+app.use((err: Error & { code?: string }, _req: Request, res: Response, next: NextFunction) => {
   if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(400).json({ error: 'Arquivo muito grande. Máximo: 5MB.' });
+    res.status(400).json({ error: 'Arquivo muito grande. Máximo: 5MB.' });
+    return;
   }
   if (err.message === 'Apenas imagens são permitidas') {
-    return res.status(400).json({ error: err.message });
+    res.status(400).json({ error: err.message });
+    return;
   }
   next(err);
 });
 
-// Generic error handler — must be last, must have 4 args
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+// Generic error handler
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('[unhandled error]', err);
   res.status(500).json({ error: 'Internal server error' });
 });

@@ -8,7 +8,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendMail({ to, subject, html }) {
+interface MailOptions {
+  to: string;
+  subject: string;
+  html: string;
+}
+
+export async function sendMail({ to, subject, html }: MailOptions): Promise<void> {
   await transporter.sendMail({
     from: `"Meu Freezer" <${process.env.EMAIL_FROM}>`,
     to,
