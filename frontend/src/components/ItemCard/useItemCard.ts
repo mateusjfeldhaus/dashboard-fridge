@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { decrementQuantity, updateItemImage } from '../../api/items';
@@ -31,7 +31,7 @@ export function useItemCard(item: Item, { onDeleted, onUpdated }: UseItemCardOpt
   const categoryStyle = theme.categories[cat as keyof typeof theme.categories] ?? theme.categories.outro;
   const maxQty = Number(item.quantity);
 
-  const getExpiryStatus = useCallback((): 'urgent' | 'soon' | null => {
+  const expiryStatus = useMemo((): 'urgent' | 'soon' | null => {
     if (!item.expiry_date) return null;
     const days = (parseLocalDate(item.expiry_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
     if (days <= 7) return 'urgent';
@@ -86,7 +86,7 @@ export function useItemCard(item: Item, { onDeleted, onUpdated }: UseItemCardOpt
     removing, setRemoving, cancelRemove,
     amount, setAmount, maxQty,
     loading, imgUploading,
-    getExpiryStatus,
+    expiryStatus,
     handleImageClick, handleImageChange,
     handleConfirmRemove,
     navigate,

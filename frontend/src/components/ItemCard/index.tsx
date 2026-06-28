@@ -19,13 +19,11 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
     removing, setRemoving, cancelRemove,
     amount, setAmount, maxQty,
     loading, imgUploading,
-    getExpiryStatus,
+    expiryStatus,
     handleImageClick, handleImageChange,
     handleConfirmRemove,
     navigate,
   } = useItemCard(item, { onDeleted, onUpdated });
-
-  const expiryStatus = getExpiryStatus();
 
   return (
     <Card>

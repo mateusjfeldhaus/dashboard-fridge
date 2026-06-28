@@ -1,16 +1,16 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { login } from '../../api/items';
 import { setToken } from '../../auth';
 
 export function useLogin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const expired = new URLSearchParams(window.location.search).get('expired') === 'true';
   const [error, setError] = useState<string | null>(
-    expired ? 'Sua sessão expirou. Entre novamente.' : null
+    searchParams.get('expired') === 'true' ? 'Sua sessão expirou. Entre novamente.' : null
   );
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
