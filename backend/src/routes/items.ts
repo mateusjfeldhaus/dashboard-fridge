@@ -5,6 +5,7 @@ import pool from '../db.js';
 import supabase from '../supabase.js';
 import { validate } from '../middleware/validate.js';
 import { itemBodySchema, quantitySchema, idParamSchema, getItemsQuerySchema } from '../schemas.js';
+import logger from '../logger.js';
 
 const router = Router();
 
@@ -22,7 +23,7 @@ async function deleteStorageImage(imageUrl: string | null | undefined): Promise<
     const filename = imageUrl.split('/').pop();
     if (filename) await supabase.storage.from(BUCKET).remove([filename]);
   } catch (err) {
-    console.error('[storage] Failed to delete old image:', (err as Error).message);
+    logger.warn({ err }, 'Failed to delete old image from storage');
   }
 }
 
@@ -59,7 +60,7 @@ router.get('/', validate(getItemsQuerySchema, 'query'), async (req, res) => {
     const { rows } = await pool.query(query, params);
     res.json(rows);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, 'Route error');
     res.status(500).json({ error: 'Failed to fetch items' });
   }
 });
@@ -71,7 +72,7 @@ router.get('/:id', validate(idParamSchema, 'params'), async (req, res) => {
     if (!rows.length) { res.status(404).json({ error: 'Item not found' }); return; }
     res.json(rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, 'Route error');
     res.status(500).json({ error: 'Failed to fetch item' });
   }
 });
@@ -103,7 +104,7 @@ router.post('/', upload.single('image'), validate(itemBodySchema), async (req, r
     );
     res.status(201).json(rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, 'Route error');
     res.status(500).json({ error: 'Failed to create item' });
   }
 });
@@ -141,7 +142,7 @@ router.put('/:id', upload.single('image'), validate(idParamSchema, 'params'), va
     if (!rows.length) { res.status(404).json({ error: 'Item not found' }); return; }
     res.json(rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, 'Route error');
     res.status(500).json({ error: 'Failed to update item' });
   }
 });
@@ -173,7 +174,7 @@ router.patch('/:id/image', upload.single('image'), validate(idParamSchema, 'para
     await deleteStorageImage(oldImageUrl);
     res.json(rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, 'Route error');
     res.status(500).json({ error: 'Failed to update image' });
   }
 });
@@ -218,7 +219,7 @@ router.patch('/:id/quantity', validate(idParamSchema, 'params'), validate(quanti
       client.release();
     }
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, 'Route error');
     res.status(500).json({ error: 'Failed to update quantity' });
   }
 });
@@ -231,7 +232,7 @@ router.delete('/:id', validate(idParamSchema, 'params'), async (req, res) => {
     await deleteStorageImage(rows[0].image_url);
     res.json({ message: 'Deleted', item: rows[0] });
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, 'Route error');
     res.status(500).json({ error: 'Failed to delete item' });
   }
 });

@@ -1,4 +1,5 @@
 import pg from 'pg';
+import logger from './logger.js';
 const { Pool } = pg;
 
 const pool = new Pool({
@@ -10,7 +11,7 @@ const pool = new Pool({
 });
 
 pool.on('error', (err: Error) => {
-  console.error('[db] Idle client error:', err.message);
+  logger.error({ err }, 'Idle DB client error');
 });
 
 export default pool;

@@ -1,5 +1,6 @@
 import pool from '../db.js';
 import { sendMail } from '../mailer.js';
+import logger from '../logger.js';
 
 interface ExpiringItem {
   name: string;
@@ -12,7 +13,7 @@ interface ExpiringItem {
 export async function notifyExpiringItems(): Promise<void> {
   const to = process.env.EMAIL_TO;
   if (!to || !process.env.EMAIL_FROM || !process.env.EMAIL_APP_PASSWORD) {
-    console.log('[notify] EMAIL_FROM/EMAIL_TO/EMAIL_APP_PASSWORD not set, skipping.');
+    logger.warn('EMAIL_FROM/EMAIL_TO/EMAIL_APP_PASSWORD not set — skipping expiry notification');
     return;
   }
 
@@ -25,7 +26,7 @@ export async function notifyExpiringItems(): Promise<void> {
   `);
 
   if (rows.length === 0) {
-    console.log('[notify] No items expiring in the next 30 days.');
+    logger.info('No items expiring in the next 30 days');
     return;
   }
 
@@ -66,5 +67,5 @@ export async function notifyExpiringItems(): Promise<void> {
   `;
 
   await sendMail({ to, subject: `⚠️ ${rows.length} item(s) vencendo em breve`, html });
-  console.log(`[notify] Email sent to ${to} with ${rows.length} expiring item(s).`);
+  logger.info({ to, count: rows.length }, 'Expiry notification email sent');
 }
