@@ -32,4 +32,5 @@ export interface DecrementResponse {
 
 export interface LoginResponse {
   token: string;
+  refreshToken: string;
 }

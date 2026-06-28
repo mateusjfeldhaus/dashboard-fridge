@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { login } from '../../api/items';
-import { setToken } from '../../auth';
+import { setTokens } from '../../auth';
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export function useLogin() {
     setError(null);
     try {
       const { data } = await login(password);
-      setToken(data.token);
+      setTokens(data.token, data.refreshToken);
       navigate('/');
     } catch {
       setError('Senha incorreta. Tente novamente.');

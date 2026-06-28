@@ -1,10 +1,10 @@
 import axios from 'axios';
-import { getToken, clearToken } from '../auth';
+import { getToken, getRefreshToken, setToken, clearTokens } from '../auth';
 import type { Item, DecrementResponse, LoginResponse } from '../types';
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
-});
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
+const api = axios.create({ baseURL: BASE_URL });
 
 api.interceptors.request.use((config) => {
   const token = getToken();
@@ -12,14 +12,57 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Silent refresh — queue concurrent 401s while refreshing
+let isRefreshing = false;
+let pendingQueue: Array<(token: string) => void> = [];
+
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      clearToken();
-      window.location.href = '/login?expired=true';
+  async (err) => {
+    const original = err.config as typeof err.config & { _retry?: boolean };
+
+    if (err.response?.status !== 401 || original._retry) {
+      return Promise.reject(err);
     }
-    return Promise.reject(err);
+
+    // If already refreshing, queue this request until we have the new token
+    if (isRefreshing) {
+      return new Promise((resolve) => {
+        pendingQueue.push((token) => {
+          original.headers.Authorization = `Bearer ${token}`;
+          resolve(api(original));
+        });
+      });
+    }
+
+    original._retry = true;
+    isRefreshing = true;
+
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      clearTokens();
+      window.location.href = '/login?expired=true';
+      return Promise.reject(err);
+    }
+
+    try {
+      const { data } = await axios.post<{ token: string }>(
+        `${BASE_URL}/auth/refresh`,
+        { refreshToken }
+      );
+      setToken(data.token);
+      pendingQueue.forEach((cb) => cb(data.token));
+      pendingQueue = [];
+      original.headers.Authorization = `Bearer ${data.token}`;
+      return api(original);
+    } catch {
+      clearTokens();
+      pendingQueue = [];
+      window.location.href = '/login?expired=true';
+      return Promise.reject(err);
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 
