@@ -11,7 +11,8 @@ interface Toast {
 interface ToastContextValue {
   toasts: Toast[];
   showToast: (message: string, opts?: { onUndo?: () => void; onExpire?: () => void; duration?: number }) => string;
-  dismissToast: (id: string) => void;
+  /** commit=true (default) calls onExpire before removing — use false only when undoing */
+  dismissToast: (id: string, opts?: { commit?: boolean }) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -20,8 +21,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const timers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
-  const dismissToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
+  const dismissToast = useCallback((id: string, { commit = true }: { commit?: boolean } = {}) => {
+    setToasts((prev) => {
+      const toast = prev.find((t) => t.id === id);
+      if (commit) toast?.onExpire?.();
+      return prev.filter((t) => t.id !== id);
+    });
     const timer = timers.current.get(id);
     if (timer) { clearTimeout(timer); timers.current.delete(id); }
   }, []);

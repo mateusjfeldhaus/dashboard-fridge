@@ -18,6 +18,15 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Generous limit — legitimate use is ~1 req per 15 min per session
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { error: 'Muitas tentativas de refresh. Tente novamente em 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 router.post('/login', loginLimiter, validate(loginSchema), (req, res) => {
   const { password } = req.body as { password: string };
 
@@ -34,7 +43,7 @@ router.post('/login', loginLimiter, validate(loginSchema), (req, res) => {
   res.json({ token, refreshToken });
 });
 
-router.post('/refresh', (req, res) => {
+router.post('/refresh', refreshLimiter, (req, res) => {
   const { refreshToken } = req.body as { refreshToken?: string };
 
   if (!refreshToken) {

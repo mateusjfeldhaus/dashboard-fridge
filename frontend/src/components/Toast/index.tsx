@@ -12,7 +12,7 @@ export default function ToastContainer() {
         <ToastEl key={toast.id} role="status" aria-live="polite">
           <span>{toast.message}</span>
           {toast.onUndo && (
-            <UndoBtn onClick={() => { toast.onUndo!(); dismissToast(toast.id); }}>
+            <UndoBtn onClick={() => { toast.onUndo!(); dismissToast(toast.id, { commit: false }); }}>
               Desfazer
             </UndoBtn>
           )}

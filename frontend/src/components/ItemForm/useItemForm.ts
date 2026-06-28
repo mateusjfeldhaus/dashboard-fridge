@@ -57,9 +57,11 @@ export function useItemForm(initial: Partial<Item> = {}, onSubmit: (fd: FormData
   const handleSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     const fd = new FormData();
-    (Object.entries(form) as [string, string | number][]).forEach(([k, v]) =>
-      fd.append(k, String(v))
-    );
+    (Object.entries(form) as [string, string | number][]).forEach(([k, v]) => {
+      // Don't send empty image_url — backend Zod rejects '' as invalid URL
+      if (k === 'image_url' && !v) return;
+      fd.append(k, String(v));
+    });
     if (imageFile) fd.append('image', imageFile);
     onSubmit(fd);
   }, [form, imageFile, onSubmit]);
