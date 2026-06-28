@@ -12,7 +12,7 @@ export function useAddItem() {
     setError(null);
     try {
       await createItem(formData);
-      navigate('/');
+      navigate('/', { state: { toast: '✅ Item adicionado!' } });
     } catch (err) {
       setError('Erro ao salvar. Tente novamente.');
       console.error(err);

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getItems } from '../../api/items';
 import { CATEGORIES as BASE_CATEGORIES } from '../../constants/categories';
 import { parseLocalDate } from '../../utils/date';
+import { useToast } from '../../contexts/ToastContext';
 import type { Item } from '../../types';
 
 export const CATEGORIES = ['todos', ...BASE_CATEGORIES] as const;
@@ -11,6 +12,8 @@ export const PAGE_SIZE = 12;
 export function useDashboard() {
   const { category: categoryParam } = useParams<{ category?: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { showToast } = useToast();
 
   const activeCategory = categoryParam ?? 'todos';
   const [allItems, setAllItems] = useState<Item[]>([]);
@@ -19,6 +22,16 @@ export function useDashboard() {
   const [page, setPage] = useState(1);
 
   const [error, setError] = useState<string | null>(null);
+
+  // Show toast passed via navigation state (e.g. after add/edit)
+  useEffect(() => {
+    const msg = (location.state as { toast?: string } | null)?.toast;
+    if (msg) {
+      showToast(msg);
+      // Clear state so toast doesn't re-appear on back navigation
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch all items once on mount
   useEffect(() => {

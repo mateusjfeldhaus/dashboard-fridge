@@ -28,7 +28,7 @@ export function useEditItem() {
     setError(null);
     try {
       await updateItem(id, formData);
-      navigate('/');
+      navigate('/', { state: { toast: '✅ Item atualizado!' } });
     } catch (err) {
       setError('Erro ao atualizar. Tente novamente.');
       console.error(err);
