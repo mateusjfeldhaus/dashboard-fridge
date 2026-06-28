@@ -11,9 +11,10 @@ interface Props {
   item: Item;
   onDeleted: (id: string) => void;
   onUpdated: (item: Item) => void;
+  onRestored: (item: Item) => void;
 }
 
-export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
+export default function ItemCard({ item, onDeleted, onUpdated, onRestored }: Props) {
   const {
     fileRef, cat, categoryStyle,
     removing, setRemoving, cancelRemove,
@@ -23,7 +24,7 @@ export default function ItemCard({ item, onDeleted, onUpdated }: Props) {
     handleImageClick, handleImageChange,
     handleConfirmRemove,
     navigate,
-  } = useItemCard(item, { onDeleted, onUpdated });
+  } = useItemCard(item, { onDeleted, onUpdated, onRestored });
 
   return (
     <Card>

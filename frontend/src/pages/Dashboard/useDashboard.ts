@@ -83,6 +83,11 @@ export function useDashboard() {
     []
   );
 
+  const handleRestored = useCallback(
+    (item: Item) => setAllItems((prev) => [item, ...prev]),
+    []
+  );
+
   const label = activeCategory === 'todos'
     ? 'Todos os itens'
     : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1);
@@ -95,6 +100,6 @@ export function useDashboard() {
     page: safePage, totalPages, setPage,
     totalItems: filteredItems.length,
     handleCategoryClick,
-    handleDeleted, handleUpdated,
+    handleDeleted, handleUpdated, handleRestored,
   };
 }

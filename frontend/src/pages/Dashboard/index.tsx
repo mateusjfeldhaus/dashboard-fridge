@@ -8,7 +8,7 @@ export default function Dashboard() {
     activeCategory, label,
     page, totalPages, setPage, totalItems,
     handleCategoryClick,
-    handleDeleted, handleUpdated,
+    handleDeleted, handleUpdated, handleRestored,
   } = useDashboard();
 
   return (
@@ -39,7 +39,7 @@ export default function Dashboard() {
         <>
           <Grid>
             {items.map((item) => (
-              <ItemCard key={item.id} item={item} onDeleted={handleDeleted} onUpdated={handleUpdated} />
+              <ItemCard key={item.id} item={item} onDeleted={handleDeleted} onUpdated={handleUpdated} onRestored={handleRestored} />
             ))}
           </Grid>
 

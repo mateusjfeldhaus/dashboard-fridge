@@ -8,11 +8,14 @@ import Dashboard from './pages/Dashboard';
 import AddItem from './pages/AddItem';
 import EditItem from './pages/EditItem';
 import Login from './pages/Login';
+import { ToastProvider } from './contexts/ToastContext';
+import ToastContainer from './components/Toast';
 
 export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
+      <ToastProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -29,6 +32,8 @@ export default function App() {
           } />
         </Routes>
       </BrowserRouter>
+      <ToastContainer />
+      </ToastProvider>
     </ThemeProvider>
   );
 }
