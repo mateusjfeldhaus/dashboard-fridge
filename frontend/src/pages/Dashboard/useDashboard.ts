@@ -6,6 +6,7 @@ import { parseLocalDate } from '../../utils/date';
 import type { Item } from '../../types';
 
 export const CATEGORIES = ['todos', ...BASE_CATEGORIES] as const;
+export const PAGE_SIZE = 12;
 
 export function useDashboard() {
   const { category: categoryParam } = useParams<{ category?: string }>();
@@ -15,6 +16,7 @@ export function useDashboard() {
   const [allItems, setAllItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +37,7 @@ export function useDashboard() {
   }, []);
 
   // Filter + sort client-side — instant, no extra API calls
-  const items = useMemo(() => {
+  const filteredItems = useMemo(() => {
     let result = allItems;
     if (activeCategory !== 'todos') {
       result = result.filter((i) => i.category === activeCategory);
@@ -57,7 +59,16 @@ export function useDashboard() {
     });
   }, [allItems, activeCategory, search]);
 
+  // Reset to page 1 when filters change
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const items = useMemo(
+    () => filteredItems.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filteredItems, safePage]
+  );
+
   const handleCategoryClick = useCallback((c: string) => {
+    setPage(1);
     if (c === 'todos') navigate('/');
     else navigate(`/category/${encodeURIComponent(c)}`);
   }, [navigate]);
@@ -76,9 +87,13 @@ export function useDashboard() {
     ? 'Todos os itens'
     : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1);
 
+  const setSearch2 = useCallback((v: string) => { setSearch(v); setPage(1); }, []);
+
   return {
-    items, loading, error, search, setSearch,
+    items, loading, error, search, setSearch: setSearch2,
     activeCategory, label,
+    page: safePage, totalPages, setPage,
+    totalItems: filteredItems.length,
     handleCategoryClick,
     handleDeleted, handleUpdated,
   };
