@@ -6,6 +6,7 @@ import {
 } from './styles';
 import { useItemCard, getCategoryEmoji } from './useItemCard';
 import { formatDate } from '../../utils/date';
+import { formatQty } from '../../utils/number';
 
 interface Props {
   item: Item;
@@ -50,7 +51,7 @@ export default function ItemCard({ item, onDeleted, onUpdated, onRestored }: Pro
       <Body>
         <Name>{item.name}</Name>
         <Badge $bg={categoryStyle.bg} $color={categoryStyle.color}>{categoryStyle.label}</Badge>
-        <Meta>{item.quantity} {item.unit}</Meta>
+        <Meta>{formatQty(item.quantity)} {item.unit}</Meta>
         {item.expiry_date && (
           <Expiry $warn={expiryStatus}>
             {expiryStatus === 'urgent' ? '🔴 ' : expiryStatus === 'soon' ? '🟡 ' : ''}
@@ -66,11 +67,11 @@ export default function ItemCard({ item, onDeleted, onUpdated, onRestored }: Pro
           <RemoveRow>
             <Stepper>
               <StepBtn onClick={() => setAmount((a) => Math.max(1, a - 1))} disabled={amount <= 1} aria-label="Diminuir quantidade">−</StepBtn>
-              <StepValue>{amount}</StepValue>
+              <StepValue>{formatQty(amount)}</StepValue>
               <StepBtn onClick={() => setAmount((a) => Math.min(maxQty, a + 1))} disabled={amount >= maxQty} aria-label="Aumentar quantidade">+</StepBtn>
             </Stepper>
             <ConfirmBtn onClick={handleConfirmRemove} disabled={loading}>
-              {amount >= maxQty ? '🗑 Remover tudo' : `Remover ${amount}`}
+              {amount >= maxQty ? '🗑 Remover tudo' : `Remover ${formatQty(amount)}`}
             </ConfirmBtn>
           </RemoveRow>
           <Btn $variant="ghost" onClick={cancelRemove}>Cancelar</Btn>
