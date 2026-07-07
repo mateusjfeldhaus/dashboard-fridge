@@ -105,12 +105,13 @@ export function useDashboard() {
     ? 'Todos os itens'
     : activeCategory.charAt(0).toUpperCase() + activeCategory.slice(1);
 
+  const goToPage = useCallback((n: number) => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
   const setSearch2 = useCallback((v: string) => { setSearch(v); setPage(1); }, []);
 
   return {
     items, loading, error, search, setSearch: setSearch2,
     activeCategory, label,
-    page: safePage, totalPages, setPage,
+    page: safePage, totalPages, setPage: goToPage,
     totalItems: filteredItems.length,
     handleCategoryClick,
     handleDeleted, handleUpdated, handleRestored,
