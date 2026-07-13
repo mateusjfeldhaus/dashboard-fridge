@@ -17,6 +17,7 @@ import authRouter from './routes/auth.js';
 import itemsRouter from './routes/items.js';
 import { requireAuth } from './middleware/auth.js';
 import { notifyExpiringItems } from './jobs/notifyExpiring.js';
+import pool from './db.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -28,6 +29,16 @@ app.use(express.json());
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRouter);
 app.use('/api/items', requireAuth, itemsRouter);
+
+// Weekly DB ping every Monday at 7am — keeps Supabase free tier from going inactive
+cron.schedule('0 7 * * 1', async () => {
+  try {
+    await pool.query('SELECT 1');
+    logger.info('Weekly DB ping OK');
+  } catch (err) {
+    logger.error({ err }, 'Weekly DB ping failed');
+  }
+}, { timezone: 'America/Sao_Paulo' });
 
 // Daily expiry check at 8am Brasília time
 cron.schedule('0 8 * * *', () => {
