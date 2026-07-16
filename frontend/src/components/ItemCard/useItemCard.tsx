@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, createElement } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'styled-components';
 import { toast } from 'react-toastify';
@@ -62,14 +62,16 @@ export function useItemCard(item: Item, { onDeleted, onUpdated, onRestored }: Us
       let undone = false;
 
       toast(
-        ({ closeToast }) => createElement(
-          'div',
-          { style: { display: 'flex', alignItems: 'center', gap: 12 } },
-          createElement('span', null, `"${item.name}" removido.`),
-          createElement('button', {
-            onClick: () => { undone = true; onRestored(item); closeToast?.(); },
-            style: { marginLeft: 'auto', background: 'none', border: 'none', color: '#60a5fa', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' },
-          }, 'Desfazer'),
+        ({ closeToast }) => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span>"{item.name}" removido.</span>
+            <button
+              onClick={() => { undone = true; onRestored(item); closeToast?.(); }}
+              style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#60a5fa', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+            >
+              Desfazer
+            </button>
+          </div>
         ),
         {
           autoClose: 5000,
