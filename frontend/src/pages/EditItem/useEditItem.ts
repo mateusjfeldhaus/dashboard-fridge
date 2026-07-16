@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { getItem, updateItem } from '../../api/items';
 import type { Item } from '../../types';
 
@@ -9,7 +10,6 @@ export function useEditItem() {
   const [item, setItem] = useState<Item | null>(null);
   const [fetching, setFetching] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -25,17 +25,17 @@ export function useEditItem() {
   const handleSubmit = useCallback(async (formData: FormData) => {
     if (!id) return;
     setLoading(true);
-    setError(null);
     try {
       await updateItem(id, formData);
-      navigate('/', { state: { toast: '✅ Item atualizado!' } });
+      toast.success('Item atualizado!');
+      navigate('/');
     } catch (err) {
-      setError('Erro ao atualizar. Tente novamente.');
+      toast.error('Erro ao atualizar. Tente novamente.');
       console.error(err);
     } finally {
       setLoading(false);
     }
   }, [id, navigate]);
 
-  return { item, fetching, loading, error, handleSubmit };
+  return { item, fetching, loading, handleSubmit };
 }

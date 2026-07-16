@@ -1,10 +1,10 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'styled-components';
+import { toast } from 'react-toastify';
 import { decrementQuantity } from '../../api/items';
 import { parseLocalDate } from '../../utils/date';
 import { CATEGORY_CONFIG } from '../../constants/categories';
-import { useToast } from '../../contexts/ToastContext';
 import type { Item } from '../../types';
 
 /** Returns just the emoji from CATEGORY_CONFIG label, e.g. "🥩 Carne" → "🥩" */
@@ -22,7 +22,6 @@ interface UseItemCardOptions {
 export function useItemCard(item: Item, { onDeleted, onUpdated, onRestored }: UseItemCardOptions) {
   const navigate = useNavigate();
   const theme = useTheme();
-  const { showToast } = useToast();
 
   const [removing, setRemoving] = useState(false);
   const [amount, setAmount] = useState(1);
@@ -55,22 +54,39 @@ export function useItemCard(item: Item, { onDeleted, onUpdated, onRestored }: Us
     const willDelete = amount >= maxQty;
 
     if (willDelete) {
-      // Optimistic removal — actual API call is delayed 5s to allow undo
+      // Optimistic removal — API call happens only if user doesn't undo
       onDeleted(item.id);
       setRemoving(false);
       setAmount(1);
 
-      showToast(`"${item.name}" removido.`, {
-        onUndo: () => onRestored(item),
-        onExpire: async () => {
-          try {
-            await decrementQuantity(item.id, amount);
-          } catch (err) {
-            console.error('[undo] Failed to delete after timeout — restoring item', err);
-            onRestored(item);
-          }
-        },
-      });
+      let undone = false;
+
+      toast(
+        ({ closeToast }) => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span>"{item.name}" removido.</span>
+            <button
+              onClick={() => { undone = true; onRestored(item); closeToast?.(); }}
+              style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#60a5fa', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}
+            >
+              Desfazer
+            </button>
+          </div>
+        ),
+        {
+          autoClose: 5000,
+          onClose: async () => {
+            if (undone) return;
+            try {
+              await decrementQuantity(item.id, amount);
+            } catch (err) {
+              console.error('[delete] Failed after toast expired — restoring item', err);
+              onRestored(item);
+              toast.error('Erro ao remover item.');
+            }
+          },
+        }
+      );
       return;
     }
 
@@ -81,13 +97,15 @@ export function useItemCard(item: Item, { onDeleted, onUpdated, onRestored }: Us
         onUpdated(data.item);
         setRemoving(false);
         setAmount(1);
+        toast.success('Quantidade atualizada!');
       }
     } catch (err) {
       console.error(err);
+      toast.error('Erro ao remover. Tente novamente.');
     } finally {
       setLoading(false);
     }
-  }, [item, amount, maxQty, onDeleted, onUpdated, onRestored, showToast]);
+  }, [item, amount, maxQty, onDeleted, onUpdated, onRestored]);
 
   const cancelRemove = useCallback(() => {
     setRemoving(false);

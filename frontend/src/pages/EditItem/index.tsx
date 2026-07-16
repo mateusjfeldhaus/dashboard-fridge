@@ -1,5 +1,5 @@
 import ItemForm from '../../components/ItemForm';
-import { Page, Card, Title, ErrorMsg, SkeletonTitle, SkeletonLabel, SkeletonInput, SkeletonBtn } from './styles';
+import { Page, Card, Title, SkeletonTitle, SkeletonLabel, SkeletonInput, SkeletonBtn } from './styles';
 import { useEditItem } from './useEditItem';
 
 function EditItemSkeleton() {
@@ -20,7 +20,7 @@ function EditItemSkeleton() {
 }
 
 export default function EditItem() {
-  const { item, fetching, loading, error, handleSubmit } = useEditItem();
+  const { item, fetching, loading, handleSubmit } = useEditItem();
 
   if (fetching) return <EditItemSkeleton />;
   if (!item) return null;
@@ -29,7 +29,6 @@ export default function EditItem() {
     <Page>
       <Card>
         <Title>✏️ Editar item</Title>
-        {error && <ErrorMsg>{error}</ErrorMsg>}
         <ItemForm initial={item} onSubmit={handleSubmit} loading={loading} />
       </Card>
     </Page>
