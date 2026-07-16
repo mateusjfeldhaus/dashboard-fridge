@@ -31,8 +31,6 @@ export const ImageWrapper = styled.button`
 
   img { width: 100%; height: 100%; object-fit: cover; }
 
-  &:hover .cam-overlay, &:focus-visible .cam-overlay { opacity: 1; }
-
   &:focus-visible { outline: 2px solid ${({ theme }) => theme.colors.primary}; outline-offset: 2px; }
 `;
 
@@ -180,4 +178,39 @@ export const ConfirmBtn = styled.button`
 
   &:hover { opacity: 0.85; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+`;
+
+export const LightboxOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  padding: 24px;
+`;
+
+export const LightboxImg = styled.img`
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: ${({ theme }) => theme.radius.md};
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  cursor: default;
+`;
+
+export const LightboxClose = styled.button`
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.8;
+  &:hover { opacity: 1; }
 `;

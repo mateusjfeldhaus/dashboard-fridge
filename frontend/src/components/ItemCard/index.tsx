@@ -1,8 +1,10 @@
+import { createPortal } from 'react-dom';
 import type { Item } from '../../types';
 import {
-  Card, ImageWrapper, CamOverlay, Body, Name, Badge, Meta, Expiry,
+  Card, ImageWrapper, Body, Name, Badge, Meta, Expiry,
   Actions, Btn, RemovePanel, RemoveLabel, RemoveRow,
   Stepper, StepBtn, StepValue, ConfirmBtn,
+  LightboxOverlay, LightboxImg, LightboxClose,
 } from './styles';
 import { useItemCard, getCategoryEmoji } from './useItemCard';
 import { formatDate } from '../../utils/date';
@@ -17,36 +19,36 @@ interface Props {
 
 export default function ItemCard({ item, onDeleted, onUpdated, onRestored }: Props) {
   const {
-    fileRef, cat, categoryStyle,
+    cat, categoryStyle,
     removing, setRemoving, cancelRemove,
     amount, setAmount, maxQty,
-    loading, imgUploading,
+    loading,
+    lightbox, openLightbox, closeLightbox,
     expiryStatus,
-    handleImageClick, handleImageChange,
     handleConfirmRemove,
     navigate,
   } = useItemCard(item, { onDeleted, onUpdated, onRestored });
 
   return (
     <Card>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        style={{ display: 'none' }}
-        onChange={handleImageChange}
-      />
-
-      <ImageWrapper type="button" onClick={handleImageClick} aria-label="Trocar foto do item">
+      <ImageWrapper
+        type="button"
+        onClick={openLightbox}
+        aria-label={item.image_url ? 'Ver foto em tamanho completo' : undefined}
+        style={{ cursor: item.image_url ? 'zoom-in' : 'default' }}
+      >
         {item.image_url
           ? <img src={item.image_url} alt={item.name} />
           : <span>{getCategoryEmoji(cat)}</span>}
-        <CamOverlay className="cam-overlay">
-          {imgUploading
-            ? <span>Enviando...</span>
-            : <><>📷</><span>Trocar foto</span></>}
-        </CamOverlay>
       </ImageWrapper>
+
+      {lightbox && item.image_url && createPortal(
+        <LightboxOverlay onClick={closeLightbox} role="dialog" aria-modal="true" aria-label={item.name}>
+          <LightboxClose onClick={closeLightbox} aria-label="Fechar">✕</LightboxClose>
+          <LightboxImg src={item.image_url} alt={item.name} onClick={(e) => e.stopPropagation()} />
+        </LightboxOverlay>,
+        document.body
+      )}
 
       <Body>
         <Name>{item.name}</Name>

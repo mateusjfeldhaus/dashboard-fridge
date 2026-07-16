@@ -1,7 +1,7 @@
-import { useRef, useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'styled-components';
-import { decrementQuantity, updateItemImage } from '../../api/items';
+import { decrementQuantity } from '../../api/items';
 import { parseLocalDate } from '../../utils/date';
 import { CATEGORY_CONFIG } from '../../constants/categories';
 import { useToast } from '../../contexts/ToastContext';
@@ -23,12 +23,11 @@ export function useItemCard(item: Item, { onDeleted, onUpdated, onRestored }: Us
   const navigate = useNavigate();
   const theme = useTheme();
   const { showToast } = useToast();
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const [removing, setRemoving] = useState(false);
   const [amount, setAmount] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [imgUploading, setImgUploading] = useState(false);
+  const [lightbox, setLightbox] = useState(false);
 
   const cat = item.category?.toLowerCase() || 'outro';
   const categoryStyle = theme.categories[cat as keyof typeof theme.categories] ?? theme.categories.outro;
@@ -42,24 +41,15 @@ export function useItemCard(item: Item, { onDeleted, onUpdated, onRestored }: Us
     return null;
   }, [item.expiry_date]);
 
-  const handleImageClick = useCallback(() => {
-    fileRef.current?.click();
-  }, []);
+  const openLightbox  = useCallback(() => { if (item.image_url) setLightbox(true); }, [item.image_url]);
+  const closeLightbox = useCallback(() => setLightbox(false), []);
 
-  const handleImageChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImgUploading(true);
-    try {
-      const { data } = await updateItemImage(item.id, file);
-      onUpdated(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setImgUploading(false);
-      e.target.value = '';
-    }
-  }, [item.id, onUpdated]);
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closeLightbox(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightbox, closeLightbox]);
 
   const handleConfirmRemove = useCallback(async () => {
     const willDelete = amount >= maxQty;
@@ -105,12 +95,12 @@ export function useItemCard(item: Item, { onDeleted, onUpdated, onRestored }: Us
   }, []);
 
   return {
-    fileRef, cat, categoryStyle,
+    cat, categoryStyle,
     removing, setRemoving, cancelRemove,
     amount, setAmount, maxQty,
-    loading, imgUploading,
+    loading,
+    lightbox, openLightbox, closeLightbox,
     expiryStatus,
-    handleImageClick, handleImageChange,
     handleConfirmRemove,
     navigate,
   };
