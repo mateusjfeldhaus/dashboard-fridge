@@ -50,6 +50,21 @@ export const FilterBtn = styled.button<{ $active: boolean }>`
   }
 `;
 
+export const SortSelect = styled.select`
+  padding: 7px 12px;
+  border: 1.5px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.radius.md};
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.textSecondary};
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  margin-left: auto;
+
+  &:focus { border-color: ${({ theme }) => theme.colors.primary}; }
+`;
+
 export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));

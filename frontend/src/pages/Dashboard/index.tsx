@@ -1,10 +1,11 @@
 import ItemCard from '../../components/ItemCard';
-import { Page, Header, Title, Filters, SearchInput, FilterBtn, Grid, Empty, Pagination, PageBtn, PageInfo } from './styles';
+import { Page, Header, Title, Filters, SearchInput, FilterBtn, SortSelect, Grid, Empty, Pagination, PageBtn, PageInfo } from './styles';
 import { useDashboard, CATEGORIES } from './useDashboard';
 
 export default function Dashboard() {
   const {
     items, loading, error, search, setSearch,
+    sort, setSort,
     activeCategory, label,
     page, totalPages, setPage, totalItems,
     handleCategoryClick,
@@ -26,6 +27,10 @@ export default function Dashboard() {
               {c.charAt(0).toUpperCase() + c.slice(1)}
             </FilterBtn>
           ))}
+          <SortSelect value={sort} onChange={(e) => setSort(e.target.value as 'expiry' | 'added')} aria-label="Ordenar por">
+            <option value="added">Mais recentes primeiro</option>
+            <option value="expiry">Vencimento mais próximo</option>
+          </SortSelect>
         </Filters>
       </Header>
 

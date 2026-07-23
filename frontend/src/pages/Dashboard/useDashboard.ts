@@ -17,6 +17,7 @@ export function useDashboard() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<'expiry' | 'added'>('added');
 
   const [error, setError] = useState<string | null>(null);
 
@@ -50,14 +51,17 @@ export function useDashboard() {
         (i.notes ?? '').toLowerCase().includes(q)
       );
     }
-    // Sort by expiry: soonest first, items without expiry at the end
     return [...result].sort((a, b) => {
+      if (sort === 'added') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      // expiry: soonest first, items without expiry at the end
       if (!a.expiry_date && !b.expiry_date) return 0;
       if (!a.expiry_date) return 1;
       if (!b.expiry_date) return -1;
       return parseLocalDate(a.expiry_date).getTime() - parseLocalDate(b.expiry_date).getTime();
     });
-  }, [allItems, activeCategory, search]);
+  }, [allItems, activeCategory, search, sort]);
 
   // Reset to page 1 when filters change
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
@@ -94,9 +98,11 @@ export function useDashboard() {
 
   const goToPage = useCallback((n: number) => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
   const setSearch2 = useCallback((v: string) => { setSearch(v); setPage(1); }, []);
+  const handleSortChange = useCallback((v: 'expiry' | 'added') => { setSort(v); setPage(1); }, []);
 
   return {
     items, loading, error, search, setSearch: setSearch2,
+    sort, setSort: handleSortChange,
     activeCategory, label,
     page: safePage, totalPages, setPage: goToPage,
     totalItems: filteredItems.length,
