@@ -30,13 +30,23 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRouter);
 app.use('/api/items', requireAuth, itemsRouter);
 
-// Weekly DB ping every Monday at 7am — keeps Supabase free tier from going inactive
+// Weekly Neon ping every Monday at 7am — prevents cold start
 cron.schedule('0 7 * * 1', async () => {
   try {
     await pool.query('SELECT 1');
-    logger.info('Weekly DB ping OK');
+    logger.info('Weekly Neon ping OK');
   } catch (err) {
-    logger.error({ err }, 'Weekly DB ping failed');
+    logger.error({ err }, 'Weekly Neon ping failed');
+  }
+}, { timezone: 'America/Sao_Paulo' });
+
+// Supabase ping Mon + Thu at 7:05am — free tier pauses after 7 days inactive
+cron.schedule('5 7 * * 1,4', async () => {
+  try {
+    const res = await fetch(`${process.env.SUPABASE_URL}/health`);
+    logger.info({ status: res.status }, 'Supabase ping OK');
+  } catch (err) {
+    logger.error({ err }, 'Supabase ping failed');
   }
 }, { timezone: 'America/Sao_Paulo' });
 
