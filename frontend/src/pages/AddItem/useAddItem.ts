@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { createItem } from '../../api/items';
+import { getApiErrorMessage } from '../../utils/apiError';
 
 export function useAddItem() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export function useAddItem() {
       toast.success('Item adicionado!');
       navigate('/');
     } catch (err) {
-      toast.error('Erro ao salvar. Tente novamente.');
+      toast.error(getApiErrorMessage(err, 'Erro ao salvar. Tente novamente.'));
       console.error(err);
     } finally {
       setLoading(false);

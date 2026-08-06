@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getItem, updateItem } from '../../api/items';
+import { getApiErrorMessage } from '../../utils/apiError';
 import type { Item } from '../../types';
 
 export function useEditItem() {
@@ -30,7 +31,7 @@ export function useEditItem() {
       toast.success('Item atualizado!');
       navigate('/');
     } catch (err) {
-      toast.error('Erro ao atualizar. Tente novamente.');
+      toast.error(getApiErrorMessage(err, 'Erro ao atualizar. Tente novamente.'));
       console.error(err);
     } finally {
       setLoading(false);

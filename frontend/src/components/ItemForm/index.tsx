@@ -1,5 +1,5 @@
 import type { Item } from '../../types';
-import { Form, Field, Label, Input, Select, Textarea, Row, ImagePreview, SubmitBtn } from './styles';
+import { Form, Field, Label, Input, Select, Textarea, Row, ImagePreview, SubmitBtn, FieldError } from './styles';
 import { useItemForm, CATEGORIES, UNITS } from './useItemForm';
 
 interface Props {
@@ -9,13 +9,14 @@ interface Props {
 }
 
 export default function ItemForm({ initial = {}, onSubmit, loading }: Props) {
-  const { form, preview, set, handleImage, handleSubmit } = useItemForm(initial, onSubmit);
+  const { form, errors, preview, set, handleImage, handleSubmit } = useItemForm(initial, onSubmit);
 
   return (
     <Form onSubmit={handleSubmit}>
       <Field>
         <Label htmlFor="field-name">Nome *</Label>
-        <Input id="field-name" value={form.name} onChange={set('name')} placeholder="ex: Contrafilé" required />
+        <Input id="field-name" value={form.name} onChange={set('name')} placeholder="ex: Contrafilé" />
+        {errors.name && <FieldError>{errors.name}</FieldError>}
       </Field>
 
       <Row>
@@ -26,10 +27,12 @@ export default function ItemForm({ initial = {}, onSubmit, loading }: Props) {
               <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
             ))}
           </Select>
+          {errors.category && <FieldError>{errors.category}</FieldError>}
         </Field>
         <Field>
           <Label htmlFor="field-quantity">Quantidade</Label>
-          <Input id="field-quantity" type="number" min="0" step="0.01" value={form.quantity} onChange={set('quantity')} />
+          <Input id="field-quantity" type="number" min="0.01" step="0.01" value={form.quantity} onChange={set('quantity')} />
+          {errors.quantity && <FieldError>{errors.quantity}</FieldError>}
         </Field>
       </Row>
 
@@ -38,16 +41,19 @@ export default function ItemForm({ initial = {}, onSubmit, loading }: Props) {
         <Select id="field-unit" value={form.unit} onChange={set('unit')}>
           {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
         </Select>
+        {errors.unit && <FieldError>{errors.unit}</FieldError>}
       </Field>
 
       <Field>
         <Label htmlFor="field-expiry">Validade</Label>
         <Input id="field-expiry" type="date" value={form.expiry_date} onChange={set('expiry_date')} />
+        {errors.expiry_date && <FieldError>{errors.expiry_date}</FieldError>}
       </Field>
 
       <Field>
         <Label htmlFor="field-notes">Observações</Label>
         <Textarea id="field-notes" value={form.notes} onChange={set('notes')} placeholder="Congelado, marinado, etc." />
+        {errors.notes && <FieldError>{errors.notes}</FieldError>}
       </Field>
 
       <Field>

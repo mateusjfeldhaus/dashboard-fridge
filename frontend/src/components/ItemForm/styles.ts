@@ -58,6 +58,12 @@ export const Textarea = styled.textarea`
   &:focus { border-color: ${({ theme }) => theme.colors.primary}; }
 `;
 
+export const FieldError = styled.span`
+  font-size: 0.8rem;
+  color: ${({ theme }) => theme.colors.danger ?? '#dc2626'};
+  font-weight: 500;
+`;
+
 export const Row = styled.div`
   display: grid;
   grid-template-columns: 2fr 1fr;
