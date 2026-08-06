@@ -58,8 +58,8 @@ export function useItemForm(initial: Partial<Item> = {}, onSubmit: (fd: FormData
     e.preventDefault();
     const fd = new FormData();
     (Object.entries(form) as [string, string | number][]).forEach(([k, v]) => {
-      // Don't send empty image_url — backend Zod rejects '' as invalid URL
-      if (k === 'image_url' && !v) return;
+      // Skip empty optional string fields — backend Zod rejects '' for url/regex fields
+      if ((k === 'image_url' || k === 'expiry_date') && !v) return;
       fd.append(k, String(v));
     });
     if (imageFile) fd.append('image', imageFile);
